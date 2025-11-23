@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="flex-col">123</div>
+  <div>Role</div>
 </template>
 
 <style scoped>
