@@ -2,8 +2,10 @@
 import {ref} from 'vue';
 import {Icon} from '@iconify/vue'
 import {useMenuStore} from "@/stores/menu.ts";
+import {useUserStore} from "@/stores/user.ts";
 
 const menuStore = useMenuStore()
+const userStore = useUserStore()
 
 </script>
 
@@ -36,8 +38,8 @@ const menuStore = useMenuStore()
               <el-avatar :size="40" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png"/>
             </div>
             <div class="flex flex-col ">
-              <div>Admin</div>
-              <div class="text-[10px]">dcq0516@gmail.com</div>
+              <div>{{userStore.userInfo?.nickname}}</div>
+              <div class="text-[10px]">{{ userStore.userInfo?.email}}</div>
             </div>
           </div>
           <el-divider/>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import type {AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig} from 'axios'
+import {useUserStore} from "@/stores/user.ts";
 
 const axiosInstance = axios.create({
     baseURL: "http://127.0.0.1:8000",
@@ -8,6 +9,10 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
     (request: InternalAxiosRequestConfig) => {
+        const userStore = useUserStore();
+        if (userStore.token) {
+            request.headers.Authorization = userStore.token
+        }
         return request
     },
     (error) => {

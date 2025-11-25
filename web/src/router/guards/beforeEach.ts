@@ -1,6 +1,7 @@
 import type {NavigationGuardNext, RouteLocationNormalized, Router, RouteRecordRaw} from "vue-router";
 import {getMenuList} from "@/api/userApi.ts";
 import {useMenuStore} from "@/stores/menu.ts";
+import {useUserStore} from "@/stores/user.ts";
 
 
 let isAddDynamicRoute = false;
@@ -23,18 +24,27 @@ async function handleRouteGuard(
     next: NavigationGuardNext,
     router: Router
 ): Promise<void> {
+    if (to.path === '/login') {
+        next()
+        return
+    }
     if (isAddDynamicRoute) {
         next()
     } else {
         const menuStore = useMenuStore()
+        const userStore = useUserStore();
         console.log(menuStore.menuList)
         if (menuStore.menuList.length > 0) {
             next()
         } else {
+            if (userStore.token === '') {
+                next('/login')
+                return
+            }
             let routes: any[] = []
             await getMenuList().then(res => {
                 console.log(res)
-                routes = res.data
+                routes = res.data.data
             })
             menuStore.setMenuList(routes)
             addDynamicRoutes(routes, 'Layout', router)

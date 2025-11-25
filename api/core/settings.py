@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     MYSQL_USER: str = ""
     MYSQL_PASSWORD: str = ""
     MYSQL_DB: str = ""
+    SECRET_KEY: str = ""
+    ALGORITHM: str = ""
 
 
 settings = Settings()

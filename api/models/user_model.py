@@ -1,4 +1,5 @@
 from tortoise import fields
+from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
 
 
@@ -15,3 +16,6 @@ class User(Model):
     updated_at = fields.DatetimeField(auto_now=True, description="更新时间")
 
     roles = fields.ManyToManyField("models.Role", related_name="users")
+
+
+UserPydantic = pydantic_model_creator(User, name="User")
