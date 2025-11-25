@@ -8,6 +8,6 @@ class Permission(Model):
     code = fields.CharField(max_length=255)
     description = fields.CharField(max_length=255)
     created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField()
+    updated_at = fields.DatetimeField(auto_now=True)
 
     menus = fields.ManyToManyField("models.Menu", related_name="permissions")

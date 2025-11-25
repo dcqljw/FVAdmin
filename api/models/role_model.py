@@ -8,6 +8,6 @@ class Role(Model):
     description = fields.CharField(max_length=255)
     status = fields.IntField()
     created_at = fields.DatetimeField(auto_now_add=True)
-    updated_at = fields.DatetimeField()
+    updated_at = fields.DatetimeField(auto_now=True)
 
     permissions = fields.ManyToManyField("models.Permission", related_name="roles")

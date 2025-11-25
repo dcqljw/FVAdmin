@@ -4,25 +4,20 @@ import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from tortoise.contrib.fastapi import RegisterTortoise
 
+from databases import register_mysql
 from core.settings import settings
-from router import auth_api
+from router import auth_api, system_api
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with RegisterTortoise(
-            app,
-            db_url=settings.DATABASE_URL,
-            modules={"models": ["models"]},
-            generate_schemas=True,
-            add_exception_handlers=True,
-    ):
-        yield
+    async with register_mysql(app):
+        pass
+    yield
 
 
-app = FastAPI(title=settings.PROJECT_NAME)
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,6 +28,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_api.router)
+app.include_router(system_api.router)
 
 
 @app.get("/menu")

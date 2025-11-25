@@ -125,7 +125,8 @@ def verify_token(token: str):
 
 id_generator = SnowflakeIDGenerator(machine_id=1, datacenter_id=0)
 if __name__ == '__main__':
-    print(id_generator.generate_id())
+    print(get_password_hash("123123"))
+    # print(id_generator.generate_id())
     # print(get_password_hash('123456'))
     # token = create_access_token({"username": "admin"}, timedelta(seconds=10))
     # print(token)
