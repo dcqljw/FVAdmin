@@ -2,12 +2,9 @@ from datetime import timedelta
 
 from fastapi import APIRouter
 
-from tortoise.contrib.pydantic import pydantic_model_creator
-
-from core.security import get_password_hash, verify_password, create_access_token
-from models.user_model import User, UserPydantic
-from models.role_model import Role
-from schemas.user import UserCreateSchema, UserLoginSchema
+from core.security import verify_password, create_access_token
+from models.user_model import User
+from schemas.user import UserLoginSchema
 from schemas.response import SuccessResponse, ErrorResponse
 
 router = APIRouter(prefix="/auth", tags=['auth'])
@@ -25,11 +22,3 @@ async def login(user: UserLoginSchema):
             return ErrorResponse(message="账户或密码错误")
     else:
         return ErrorResponse(message="账户或密码错误")
-
-
-@router.post("/add_user")
-async def add_user(user: UserCreateSchema):
-    print(user.model_dump())
-    user.password = get_password_hash(user.password)
-    user = await User.create(**user.model_dump())
-    return user
