@@ -13,7 +13,7 @@ console.log(menuStore.menuList)
       :collapse="menuStore.isCollapse"
   >
     <template v-for="item in menuStore.menuList">
-      <el-sub-menu v-if="item.children" :index="item.menu">
+      <el-sub-menu v-if="item.children.length > 0" :index="item.menu">
         <template #title>
           <div class="flex mr-2">
             <Icon :icon="item.meta.icon" width="24" height="24"/>

@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import {ref} from 'vue';
+import {useRouter} from "vue-router";
 import {Icon} from '@iconify/vue'
 import {useMenuStore} from "@/stores/menu.ts";
 import {useUserStore} from "@/stores/user.ts";
 
+const router = useRouter()
 const menuStore = useMenuStore()
 const userStore = useUserStore()
+
+const logOut = () => {
+  userStore.logOut()
+  router.push('/login')
+}
 
 </script>
 
@@ -38,8 +45,8 @@ const userStore = useUserStore()
               <el-avatar :size="40" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png"/>
             </div>
             <div class="flex flex-col ">
-              <div>{{userStore.userInfo?.nickname}}</div>
-              <div class="text-[10px]">{{ userStore.userInfo?.email}}</div>
+              <div>{{ userStore.userInfo?.nickname }}</div>
+              <div class="text-[10px]">{{ userStore.userInfo?.email }}</div>
             </div>
           </div>
           <el-divider/>
@@ -51,7 +58,7 @@ const userStore = useUserStore()
 
           </div>
           <el-divider/>
-          <el-button class="w-full">退出登录</el-button>
+          <el-button class="w-full" @click="logOut">退出登录</el-button>
         </div>
       </el-popover>
     </div>

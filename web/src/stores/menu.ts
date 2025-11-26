@@ -6,7 +6,7 @@ interface menuList {
     path: string,
     menu: string,
     component: string,
-    children?: menuList[],
+    children: menuList[],
     meta: {
         title: string,
         icon: string

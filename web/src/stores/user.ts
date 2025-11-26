@@ -18,10 +18,15 @@ export const useUserStore = defineStore("userStore", () => {
     const setToken = (newToken: string) => {
         token.value = newToken
     }
+    const logOut = () => {
+        userInfo.value = undefined
+        token.value = ""
+    }
     return {
         userInfo,
         token,
         setToken,
+        logOut
     }
 }, {
     persist: true

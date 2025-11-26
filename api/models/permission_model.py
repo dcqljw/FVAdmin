@@ -10,4 +10,4 @@ class Permission(Model):
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    menus = fields.ManyToManyField("models.Menu", related_name="permissions")
+    # menus = fields.ManyToManyField("models.Menu", related_name="permissions")
