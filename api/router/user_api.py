@@ -4,7 +4,7 @@ from core.security import get_password_hash
 from models.menu_model import Menu
 from models.user_model import User, UserPydantic
 from models.role_model import Role
-from router.deps import verify_token_dep
+from router.deps import verify_token_dep, get_current_user
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.user import UserCreateSchema
 from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
@@ -12,10 +12,15 @@ from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
 router = APIRouter(prefix="/user", tags=["用户管理"])
 
 
-@router.post("/")
-async def get_user():
-    user_all = await User.all()
-    return user_all
+@router.post("/list")
+async def get_user(user: User = Depends(get_current_user)):
+    roles_all = await user.roles.all()
+    roles = [i.code for i in roles_all]
+    if "R_ADMIN" in roles:
+        user_data = await UserPydantic.from_queryset(User.all())
+        return SuccessResponse(data=user_data)
+    else:
+        return ErrorResponse(message="无权限")
 
 
 @router.post("/add_user")

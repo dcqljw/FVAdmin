@@ -18,4 +18,4 @@ class User(Model):
     roles = fields.ManyToManyField("models.Role", related_name="users")
 
 
-UserPydantic = pydantic_model_creator(User, name="User")
+UserPydantic = pydantic_model_creator(User, name="User", exclude=("password",))

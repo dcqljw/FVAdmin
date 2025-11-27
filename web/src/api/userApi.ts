@@ -12,6 +12,10 @@ export function userInfoApi() {
     return axiosInstance.post('/user/user_info')
 }
 
+export function userList() {
+    return axiosInstance.post('/user/list')
+}
+
 export function getMenuList() {
     return axiosInstance.get('/menu/menu_list')
 }
