@@ -12,6 +12,12 @@ from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
 router = APIRouter(prefix="/user", tags=["用户管理"])
 
 
+@router.post("/")
+async def get_user():
+    user_all = await User.all()
+    return user_all
+
+
 @router.post("/add_user")
 async def add_user(user: UserCreateSchema):
     is_in_user = await User.get_or_none(username=user.username)
@@ -26,8 +32,8 @@ async def add_user(user: UserCreateSchema):
             return ErrorResponse(message="添加用户失败")
 
 
-@router.post("/user_info")
-async def user_info(uid: str = Depends(verify_token_dep)):
+@router.post("/users/{user_id}")
+async def user_info(user_id: int, uid: str = Depends(verify_token_dep)):
     user = await User.get_or_none(id=uid)
     if user:
         user = await UserPydantic.from_tortoise_orm(user)
