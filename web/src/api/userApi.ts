@@ -9,7 +9,7 @@ export function LoginApi(username: string, password: string) {
 }
 
 export function userInfoApi() {
-    return axiosInstance.post('/user/user_info')
+    return axiosInstance.post('/user')
 }
 
 export function userList() {

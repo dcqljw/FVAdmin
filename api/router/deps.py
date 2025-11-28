@@ -17,7 +17,6 @@ API_KEY_HEADER = APIKeyHeader(
 
 async def verify_token_dep(token: Optional[str] = Depends(API_KEY_HEADER)):
     payload = verify_token(token)
-    print(type(payload))
     if payload:
         return payload.get("uid", '')
     raise HTTPException(status_code=401, detail="登录过期,请重新登录!")

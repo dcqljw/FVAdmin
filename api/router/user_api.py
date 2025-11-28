@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from core.security import get_password_hash
 from models.menu_model import Menu
-from models.user_model import User, UserPydantic
+from models.user_model import User, UserPydantic, UserPydanticList
 from models.role_model import Role
 from router.deps import verify_token_dep, get_current_user
 from schemas.response import SuccessResponse, ErrorResponse
@@ -12,13 +12,21 @@ from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
 router = APIRouter(prefix="/user", tags=["用户管理"])
 
 
-@router.post("/list")
+@router.post("/")
 async def get_user(user: User = Depends(get_current_user)):
+    user = await UserPydantic.from_tortoise_orm(user)
+    user = user.model_dump(exclude={"password"})
+    return SuccessResponse(data=user)
+
+
+@router.post("/list")
+async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit: int = 10):
     roles_all = await user.roles.all()
     roles = [i.code for i in roles_all]
     if "R_ADMIN" in roles:
-        user_data = await UserPydantic.from_queryset(User.all())
-        return SuccessResponse(data=user_data)
+        user_list = await User.filter().offset(skip).limit(limit).all()
+        user_list = UserPydanticList(user_list)
+        return SuccessResponse(data=user_list)
     else:
         return ErrorResponse(message="无权限")
 

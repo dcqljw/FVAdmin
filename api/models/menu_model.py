@@ -1,6 +1,6 @@
 from tortoise import fields
 from tortoise.models import Model
-from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 
 
 class Menu(Model):
@@ -16,3 +16,4 @@ class Menu(Model):
 
 
 MenuPydantic = pydantic_model_creator(Menu, name="Menu")
+MenuPydanticList = pydantic_queryset_creator(Menu, name="MenuList")

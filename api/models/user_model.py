@@ -1,5 +1,5 @@
 from tortoise import fields
-from tortoise.contrib.pydantic import pydantic_model_creator
+from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 from tortoise.models import Model
 
 
@@ -19,3 +19,4 @@ class User(Model):
 
 
 UserPydantic = pydantic_model_creator(User, name="User", exclude=("password",))
+UserPydanticList = pydantic_queryset_creator(User, exclude=("password",))
