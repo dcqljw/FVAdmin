@@ -1,6 +1,10 @@
+from datetime import datetime
+from typing import List
+
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 from tortoise.models import Model
+from pydantic import ConfigDict, BaseModel
 
 
 class User(Model):
@@ -18,5 +22,24 @@ class User(Model):
     roles = fields.ManyToManyField("models.Role", related_name="users")
 
 
-UserPydantic = pydantic_model_creator(User, name="User", exclude=("password",))
-UserPydanticList = pydantic_queryset_creator(User, exclude=("password",))
+UserPydantic = pydantic_model_creator(
+    User,
+    name="User",
+    exclude=("password",),
+    model_config=ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    )
+)
+
+
+# UserPydanticList = pydantic_queryset_creator(User, exclude=("password",))
+
+class UserPydanticList(BaseModel):
+    root: List[UserPydantic]
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    )

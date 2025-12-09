@@ -1,6 +1,7 @@
 from tortoise import fields
 from tortoise.models import Model
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
+from pydantic import ConfigDict
 
 
 class Menu(Model):
@@ -15,5 +16,11 @@ class Menu(Model):
     updated_at = fields.DatetimeField(auto_now=True, description="更新时间")
 
 
-MenuPydantic = pydantic_model_creator(Menu, name="Menu")
+MenuPydantic = pydantic_model_creator(
+    Menu, 
+    name="Menu",
+    model_config=ConfigDict(
+        json_encoders={"datetime": lambda v: v.strftime("%Y-%m-%d %H:%M:%S") if v else None}
+    )
+)
 MenuPydanticList = pydantic_queryset_creator(Menu, name="MenuList")

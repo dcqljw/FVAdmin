@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from core.security import get_password_hash
 from models.menu_model import Menu
 from models.user_model import User, UserPydantic, UserPydanticList
-from models.role_model import Role
+from models.role_model import Role, RolePydantic, RolePydanticList
 from router.deps import verify_token_dep, get_current_user
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.user import UserCreateSchema
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/user", tags=["用户管理"])
 @router.post("/")
 async def get_user(user: User = Depends(get_current_user)):
     user = await UserPydantic.from_tortoise_orm(user)
-    user = user.model_dump(exclude={"password"})
+    user = user.model_dump(mode="json", exclude={"password"})
     return SuccessResponse(data=user)
 
 
@@ -24,9 +24,14 @@ async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit:
     roles_all = await user.roles.all()
     roles = [i.code for i in roles_all]
     if "R_ADMIN" in roles:
-        user_list = await User.filter().offset(skip).limit(limit).all()
-        user_list = UserPydanticList(user_list)
-        return SuccessResponse(data=user_list)
+        total = await Role.filter().count()
+        user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
+        user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
+        for idx, user in enumerate(user_roles_model):
+            # print([i.name for i in user.roles])
+            user_list[idx]['roles'] = [i.name for i in user.roles]
+            # print(RolePydanticList(root=user.roles))
+        return SuccessResponse(data={"users": user_list, "total": total})
     else:
         return ErrorResponse(message="无权限")
 

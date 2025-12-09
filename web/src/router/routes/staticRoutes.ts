@@ -9,6 +9,15 @@ export const staticRoutes: RouteRecordRaw[] = [
         path: "/",
         name: "Layout",
         component: () => import('@/layout/index.vue'),
-        children: []
+        children: [
+            {
+                path: "/user_info",
+                name: "user_info",
+                meta: {
+                    title: "个人中心",
+                },
+                component: () => import('@/views/UserInfoView.vue')
+            }
+        ]
     }
 ]

@@ -47,7 +47,7 @@ async function handleRouteGuard(
                 routes = res.data.data
             })
             menuStore.setMenuList(routes)
-            addDynamicRoutes(routes, 'Layout', router)
+            await addDynamicRoutes(routes, 'Layout', router)
             isAddDynamicRoute = true
             console.log(router.getRoutes())
             next({...to, replace: true})
@@ -57,11 +57,13 @@ async function handleRouteGuard(
 
 }
 
-const addDynamicRoutes = (routes: any[], parentName = 'Layout', router: Router) => {
+const addDynamicRoutes = async (routes: any[], parentName = 'Layout', router: Router) => {
     const allDynamicComponents = import.meta.glob("../../views/**/*.vue", {eager: false})
     routes.forEach(route => {
         const component = allDynamicComponents[`../../views/${route.component}.vue`]
         // 构造 Vue Router 格式的路由
+        console.log(route)
+
         const vueRoute = {
             path: route.path,
             name: route.name,
@@ -76,7 +78,11 @@ const addDynamicRoutes = (routes: any[], parentName = 'Layout', router: Router) 
         router.addRoute(parentName, vueRoute)
         // 递归添加子路由
         if (route.children && route.children.length > 0) {
-            parentName = route.name!
+            if (route.menu_type === 0) {
+                parentName = 'Layout'
+            } else {
+                parentName = route.name!
+            }
             addDynamicRoutes(route.children, route.name!, router)
         }
     })

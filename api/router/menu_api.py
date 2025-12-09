@@ -24,8 +24,7 @@ async def menu_list(uid: str = Depends(verify_token_dep)):
              continue
         item = await MenuPydantic.from_tortoise_orm(i)
         item = item.model_dump(exclude={"created_at", "updated_at"})
-        if item['menu_type'] == 1:
-            item["menu"] = f"/{item['path']}"
+        item["menu"] = f"/{item['path']}"
         item["children"] = []
         children_list = await Menu.filter(parent_id=i.id).all()
         for j in children_list:
