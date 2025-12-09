@@ -65,7 +65,7 @@
 
   // 搜索表单
   const searchForm = ref({
-    userName: undefined,
+    username: undefined,
     userGender: undefined,
     userPhone: undefined,
     userEmail: undefined,
@@ -136,7 +136,7 @@
                 previewTeleported: true
               }),
               h('div', { class: 'ml-2' }, [
-                h('p', { class: 'user-name' }, row.userName),
+                h('p', { class: 'user-name' }, row.username),
                 h('p', { class: 'email' }, row.userEmail)
               ])
             ])

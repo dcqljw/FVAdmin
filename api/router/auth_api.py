@@ -17,8 +17,8 @@ async def login(user: UserLoginSchema):
     if user_data:
         if verify_password(user.password, user_data.password):
             token = create_access_token(data={"uid": user_data.id}, expire_minutes=timedelta(days=7))
-            return SuccessResponse(data=token)
+            return SuccessResponse(data={"token": token, "refreshToken": token})
         else:
-            return ErrorResponse(message="账户或密码错误")
+            return ErrorResponse(msg="账户或密码错误")
     else:
-        return ErrorResponse(message="账户或密码错误")
+        return ErrorResponse(msg="账户或密码错误")

@@ -71,8 +71,8 @@
 
   // 搜索表单
   const searchForm = ref({
-    roleName: undefined,
-    roleCode: undefined,
+    name: undefined,
+    code: undefined,
     description: undefined,
     enabled: undefined,
     daterange: undefined
@@ -113,12 +113,12 @@
           width: 100
         },
         {
-          prop: 'roleName',
+          prop: 'name',
           label: '角色名称',
           minWidth: 120
         },
         {
-          prop: 'roleCode',
+          prop: 'code',
           label: '角色编码',
           minWidth: 120
         },
@@ -129,11 +129,11 @@
           showOverflowTooltip: true
         },
         {
-          prop: 'enabled',
+          prop: 'status',
           label: '角色状态',
           width: 100,
           formatter: (row) => {
-            const statusConfig = row.enabled
+            const statusConfig = row.status
               ? { type: 'success', text: '启用' }
               : { type: 'warning', text: '禁用' }
             return h(
@@ -144,7 +144,7 @@
           }
         },
         {
-          prop: 'createTime',
+          prop: 'created_at',
           label: '创建日期',
           width: 180,
           sortable: true

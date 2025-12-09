@@ -19,13 +19,9 @@
 
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, readonly } from 'vue'
 import { useWindowSize } from '@vueuse/core'
-import { useTableColumns } from './useTableColumns'
+import { useTableColumns } from '@/hooks'
 import type { ColumnOption } from '@/types/component'
-import {
-  TableCache,
-  CacheInvalidationStrategy,
-  type ApiResponse
-} from '../../utils/table/tableCache'
+import { TableCache, CacheInvalidationStrategy, type ApiResponse } from '@utils/table/tableCache'
 import {
   type TableError,
   defaultResponseAdapter,
@@ -33,8 +29,8 @@ import {
   updatePaginationFromResponse,
   createSmartDebounce,
   createErrorHandler
-} from '../../utils/table/tableUtils'
-import { tableConfig } from '../../utils/table/tableConfig'
+} from '@utils/table/tableUtils'
+import { tableConfig } from '@utils/table/tableConfig'
 
 // 类型推导工具类型
 type InferApiParams<T> = T extends (params: infer P) => any ? P : never
