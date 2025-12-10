@@ -9,7 +9,7 @@ from models.menu_model import Menu, MenuPydantic
 router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 
-@router.get("/menu_list")
+@router.get("/list")
 async def menu_list(uid: str = Depends(verify_token_dep)):
     user = await User.get_or_none(id=uid).prefetch_related("roles__menus")
     menu_set = set()
