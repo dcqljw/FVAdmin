@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from tortoise import fields
 from tortoise.models import Model
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
@@ -9,18 +11,18 @@ class Role(Model):
     name = fields.CharField(unique=True, max_length=255)
     code = fields.CharField(unique=True, max_length=255)
     description = fields.CharField(max_length=255)
-    status = fields.IntField()
+    enabled = fields.IntField()
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    menus = fields.ManyToManyField("models.Menu", related_name="permissions")
+    menus = fields.ManyToManyField("models.Menu", related_name="menus")
 
 
 RolePydantic = pydantic_model_creator(
-    Role, 
+    Role,
     name="Role",
     model_config=ConfigDict(
-        json_encoders={"datetime": lambda v: v.strftime("%Y-%m-%d %H:%M:%S") if v else None}
+        json_encoders={datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S") if v else None}
     )
 )
 RolePydanticList = pydantic_queryset_creator(Role, name="RoleList")

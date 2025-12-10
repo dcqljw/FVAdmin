@@ -74,7 +74,7 @@
     name: undefined,
     code: undefined,
     description: undefined,
-    enabled: undefined,
+    stats: undefined,
     daterange: undefined
   })
 
@@ -133,7 +133,7 @@
           label: '角色状态',
           width: 100,
           formatter: (row) => {
-            const statusConfig = row.status
+            const statusConfig = row.enabled
               ? { type: 'success', text: '启用' }
               : { type: 'warning', text: '禁用' }
             return h(
@@ -225,7 +225,7 @@
   }
 
   const deleteRole = (row: RoleListItem) => {
-    ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？此操作不可恢复！`, '删除确认', {
+    ElMessageBox.confirm(`确定删除角色"${row.name}"吗？此操作不可恢复！`, '删除确认', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'

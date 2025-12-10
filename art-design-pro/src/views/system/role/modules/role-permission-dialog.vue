@@ -14,7 +14,7 @@
         show-checkbox
         node-key="name"
         :default-expand-all="isExpandAll"
-        :default-checked-keys="[1, 2, 3]"
+        :default-checked-keys="checkedList"
         :props="defaultProps"
         @check="handleTreeCheck"
       >
@@ -43,14 +43,13 @@
 <script setup lang="ts">
   import { useMenuStore } from '@/store/modules/menu'
   import { formatMenuTitle } from '@/utils/router'
+  import { fetchGetMenuByRole } from '@/api/system-manage'
 
   type RoleListItem = Api.SystemManage.RoleListItem
-
   interface Props {
     modelValue: boolean
     roleData?: RoleListItem
   }
-
   interface Emits {
     (e: 'update:modelValue', value: boolean): void
     (e: 'success'): void
@@ -67,6 +66,7 @@
   const treeRef = ref()
   const isExpandAll = ref(true)
   const isSelectAll = ref(false)
+  const checkedList = ref<string[]>([])
 
   /**
    * 弹窗显示状态双向绑定
@@ -127,6 +127,7 @@
 
     return (menuList.value as any[]).map(processNode)
   })
+  console.log('processedMenuList:', processedMenuList.value)
 
   /**
    * 树形组件配置
@@ -134,6 +135,18 @@
   const defaultProps = {
     children: 'children',
     label: (data: any) => formatMenuTitle(data.meta?.title) || data.label || ''
+  }
+
+  const getCheckedByRole = async (roleId: number) => {
+    checkedList.value = await fetchGetMenuByRole(roleId)
+    await nextTick(() => {
+      if (treeRef.value) {
+        treeRef.value.setCheckedKeys(checkedList.value)
+        // 同步全选按钮状态
+        const allKeys = getAllNodeKeys(processedMenuList.value)
+        isSelectAll.value = checkedList.value.length === allKeys.length && allKeys.length > 0
+      }
+    })
   }
 
   /**
@@ -144,6 +157,7 @@
     (newVal) => {
       if (newVal && props.roleData) {
         // TODO: 根据角色加载对应的权限数据
+        getCheckedByRole(props.roleData.id)
         console.log('设置权限:', props.roleData)
       }
     }
@@ -155,6 +169,7 @@
   const handleClose = () => {
     visible.value = false
     treeRef.value?.setCheckedKeys([])
+    checkedList.value = []
   }
 
   /**

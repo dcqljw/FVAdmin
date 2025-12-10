@@ -23,3 +23,12 @@ export function fetchGetMenuList() {
     url: '/api/menu/list'
   })
 }
+// 根据角色获取菜单
+export function fetchGetMenuByRole(roleId: number) {
+  return request.get<string[]>({
+    url: '/api/menu/get_checked',
+    params: {
+      role_id: roleId
+    }
+  })
+}
