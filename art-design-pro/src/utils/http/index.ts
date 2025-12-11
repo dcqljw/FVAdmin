@@ -83,8 +83,15 @@ axiosInstance.interceptors.request.use(
 /** 响应拦截器 */
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
+    console.log('请求成功', response)
     const { code, msg } = response.data
-    if (code === ApiStatus.success) return response
+    if (code === 4001) {
+      ElMessage.error(msg)
+      return Promise.reject(createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized))
+    }
+    if (code === ApiStatus.success) {
+      return response
+    }
     if (code === ApiStatus.unauthorized) handleUnauthorizedError(msg)
     throw createHttpError(msg || $t('httpMsg.requestFailed'), code)
   },

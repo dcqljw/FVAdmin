@@ -5,6 +5,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from custom_exception import custom_exception_handler, CustomException
 from databases import register_mysql
 from core.settings import settings
 from router import auth_api, system_api, user_api, menu_api, role_api
@@ -26,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_exception_handler(CustomException, custom_exception_handler)
 
 app.include_router(auth_api.router)
 app.include_router(system_api.router)

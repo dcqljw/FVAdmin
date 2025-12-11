@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Security
 
 from core.security import get_password_hash
 from models.menu_model import Menu
 from models.user_model import User, UserPydantic, UserPydanticList
 from models.role_model import Role, RolePydantic, RolePydanticList
-from router.deps import verify_token_dep, get_current_user
+from router.deps import verify_token_dep, get_current_user, permission_check
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.user import UserCreateSchema
 from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
@@ -23,20 +23,18 @@ async def get_user(user: User = Depends(get_current_user)):
 async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit: int = 10):
     roles_all = await user.roles.all()
     roles = [i.code for i in roles_all]
-    if "R_ADMIN" in roles:
-        user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
-        user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
-        for idx, user in enumerate(user_roles_model):
-            # print([i.name for i in user.roles])
-            user_list[idx]['roles'] = [i.name for i in user.roles]
-            # print(RolePydanticList(root=user.roles))
-        return SuccessResponse(data=user_list)
-    else:
-        return ErrorResponse(msg="无权限")
+    user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
+    user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
+    for idx, user in enumerate(user_roles_model):
+        # print([i.name for i in user.roles])
+        user_list[idx]['roles'] = [i.name for i in user.roles]
+        # print(RolePydanticList(root=user.roles))
+    return SuccessResponse(data=user_list)
 
 
-@router.post("/add_user")
-async def add_user(user: UserCreateSchema):
+@router.post("/add")
+async def add_user(user: UserCreateSchema, permission: str = Security(permission_check, scopes=['add'])):
+    return SuccessResponse(data={"msg": "添加用户成功"})
     is_in_user = await User.get_or_none(username=user.username)
     if is_in_user:
         return ErrorResponse(msg="用户已存在")

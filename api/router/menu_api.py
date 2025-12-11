@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from tortoise.exceptions import DoesNotExist
+from tortoise.functions import Count
 
 from core.util import convert_menu_to_tree
 from models.role_model import Role, RolePydanticList
@@ -29,6 +31,43 @@ async def menu_list(uid: str = Depends(verify_token_dep)):
     return SuccessResponse(data=tree)
 
 
+async def get_role_leaf_menu_ids(role_id: int):
+    """
+    获取角色绑定的所有叶子节点菜单ID（无下级子节点的菜单）
+    优化点：批量查询子节点数量，避免循环查库
+    """
+    # 1. 校验角色存在性 + 预加载关联菜单（原子操作）
+    try:
+        role = await Role.get(id=role_id).prefetch_related("menus")
+    except DoesNotExist:
+        # 角色不存在时返回空列表，避免报错
+        return []
+
+    # 2. 提取选中的菜单ID（提前判空，减少后续操作）
+    selected_menus = await role.menus.all()
+    if not selected_menus:
+        return []
+    selected_menu_ids = [menu.id for menu in selected_menus]
+
+    # 3. 批量查询所有选中菜单的子节点数量（核心优化：1次查询替代N次）
+    # 查询结果格式：[{parent_id: 1, count: 0}, {parent_id: 2, count: 3}, ...]
+    child_count_map = await Menu.filter(parent_id__in=selected_menu_ids) \
+        .annotate(count=Count("id")) \
+        .group_by("parent_id") \
+        .values("parent_id", "count")
+
+    # 4. 转换为字典，方便快速查找（O(1) 查找效率）
+    count_dict = {item["parent_id"]: item["count"] for item in child_count_map}
+
+    # 5. 筛选叶子节点（子节点数量为0的菜单ID）
+    leaf_menu_ids = [
+        menu_id for menu_id in selected_menu_ids
+        if count_dict.get(menu_id, 0) == 0  # 无记录则默认子节点数为0
+    ]
+
+    return leaf_menu_ids
+
+
 @router.get("/get_checked")
 async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
     """
@@ -37,10 +76,11 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
     :param uid:
     :return:
     """
-    related = await Role.get(id=role_id).prefetch_related("menus")
-    print(related.menus.all())
-    menu_name_list = [i["name"] for i in MenuPydanticList(await related.menus.all()).model_dump()]
-    return SuccessResponse(data=menu_name_list)
+    # related = await Role.get(id=role_id).prefetch_related("menus")
+    # print(related.menus.all())
+    # menu_name_list = [i["name"] for i in MenuPydanticList(await related.menus.all()).model_dump()]
+    leaf_menu_ids = await get_role_leaf_menu_ids(role_id)
+    return SuccessResponse(data=leaf_menu_ids)
 
 
 @router.post("/add_menu_permission")

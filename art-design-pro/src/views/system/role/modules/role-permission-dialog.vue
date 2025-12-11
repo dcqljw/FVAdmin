@@ -12,7 +12,7 @@
         ref="treeRef"
         :data="processedMenuList"
         show-checkbox
-        node-key="name"
+        node-key="id"
         :default-expand-all="isExpandAll"
         :default-checked-keys="checkedList"
         :props="defaultProps"
@@ -86,6 +86,7 @@
     meta?: {
       title?: string
       authList?: Array<{
+        id: number
         authMark: string
         title: string
         checked?: boolean
@@ -106,7 +107,8 @@
       // 如果有 authList，将其转换为子节点
       if (node.meta?.authList?.length) {
         const authNodes = node.meta.authList.map((auth) => ({
-          id: `${node.id}_${auth.authMark}`,
+          // id: `${node.id}_${auth.authMark}`,
+          id: auth.id,
           name: `${node.name}_${auth.authMark}`,
           label: auth.title,
           authMark: auth.authMark,
@@ -141,6 +143,7 @@
     checkedList.value = await fetchGetMenuByRole(roleId)
     await nextTick(() => {
       if (treeRef.value) {
+        console.log(checkedList.value)
         treeRef.value.setCheckedKeys(checkedList.value)
         // 同步全选按钮状态
         const allKeys = getAllNodeKeys(processedMenuList.value)
@@ -179,14 +182,14 @@
     // TODO: 调用保存权限接口
     const tree = treeRef.value
     if (!tree) return
-    let checkedIds: number[] = []
+    let checkedIds: any[] = []
     tree.getCheckedNodes().forEach((node: MenuNode) => {
-      console.log(node.id)
       checkedIds.push(node.id)
     })
-    console.log(tree.getCheckedNodes())
-    console.log(props.roleData)
-    fetchSetMenuByRole(props.roleData.id, checkedIds)
+    tree.getHalfCheckedNodes().forEach((node: MenuNode) => {
+      checkedIds.push(node.id)
+    })
+    fetchSetMenuByRole(props.roleData?.id, checkedIds)
     ElMessage.success('权限保存成功')
     emit('success')
     handleClose()
@@ -234,7 +237,7 @@
     const keys: string[] = []
     const traverse = (nodeList: MenuNode[]): void => {
       nodeList.forEach((node) => {
-        if (node.name) keys.push(node.name)
+        if (node.id) keys.push(node.id)
         if (node.children?.length) traverse(node.children)
       })
     }
@@ -247,13 +250,13 @@
    * 同步更新全选按钮状态
    */
   const handleTreeCheck = () => {
-    const tree = treeRef.value
-    if (!tree) return
-
-    const checkedKeys = tree.getCheckedKeys()
-    const allKeys = getAllNodeKeys(processedMenuList.value)
-
-    isSelectAll.value = checkedKeys.length === allKeys.length && allKeys.length > 0
+    // const tree = treeRef.value
+    // if (!tree) return
+    //
+    // const checkedKeys = tree.getCheckedKeys()
+    // const allKeys = getAllNodeKeys(processedMenuList.value)
+    //
+    // isSelectAll.value = checkedKeys.length === allKeys.length && allKeys.length > 0
   }
 
   /**

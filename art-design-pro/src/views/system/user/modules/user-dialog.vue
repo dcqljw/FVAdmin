@@ -41,6 +41,7 @@
 <script setup lang="ts">
   import { ROLE_LIST_DATA } from '@/mock/temp/formData'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchAddUser } from '@/api/user-manage'
 
   interface Props {
     visible: boolean
@@ -101,7 +102,7 @@
     const row = props.userData
 
     Object.assign(formData, {
-      username: isEdit && row ? row.userName || '' : '',
+      username: isEdit && row ? row.username || '' : '',
       phone: isEdit && row ? row.userPhone || '' : '',
       gender: isEdit && row ? row.userGender || '男' : '男',
       role: isEdit && row ? (Array.isArray(row.userRoles) ? row.userRoles : []) : []
@@ -134,9 +135,10 @@
 
     await formRef.value.validate((valid) => {
       if (valid) {
-        ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
-        dialogVisible.value = false
-        emit('submit')
+        fetchAddUser()
+        // ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
+        // dialogVisible.value = false
+        // emit('submit')
       }
     })
   }

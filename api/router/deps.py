@@ -1,10 +1,11 @@
 from typing import Annotated, Optional
 
-from fastapi import Depends, Header, Request
-from fastapi.security import APIKeyHeader
+from fastapi import Depends, Header, Request, Security
+from fastapi.security import APIKeyHeader, SecurityScopes
 from fastapi.exceptions import HTTPException
 
 from core.security import verify_token
+from custom_exception import CustomException
 from models.user_model import User
 
 API_KEY_HEADER = APIKeyHeader(
@@ -25,3 +26,14 @@ async def verify_token_dep(token: Optional[str] = Depends(API_KEY_HEADER)):
 async def get_current_user(uid: str = Depends(verify_token_dep)):
     user = await User.get(id=uid)
     return user
+
+
+async def permission_check(security_scopes: SecurityScopes, user: User = Depends(get_current_user)):
+    print(security_scopes, user)
+    menus = await user.roles.all().prefetch_related("menus")
+    for i in menus:
+        for j in i.menus:
+            if j.auth_mark in security_scopes.scopes:
+                return True
+    raise CustomException(code=4001, msg="权限不足")
+    print(security_scopes, user)

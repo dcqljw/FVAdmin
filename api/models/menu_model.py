@@ -9,8 +9,10 @@ from pydantic import ConfigDict
 class Menu(Model):
     id = fields.IntField(pk=True)
     parent_id = fields.IntField(default=0, description="父级id")
-    name = fields.CharField(max_length=255, description="菜单名称")
+    name = fields.CharField(max_length=255, description="菜单名称|按钮名称")
+    type = fields.IntField(default=1, description="类型 1菜单2按钮")
     path = fields.CharField(max_length=255, description="菜单路径")
+    auth_mark = fields.CharField(max_length=255, description="按钮权限标识")
     meta = fields.JSONField(description="菜单元数据", null=True)
     sort = fields.IntField(default=0, description="排序")
     status = fields.IntField(default=1, description="状态")

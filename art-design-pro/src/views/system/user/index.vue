@@ -13,6 +13,7 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElSpace wrap>
+            <ElButton v-if="hasAuth('add')" @click="showDialog('add')" v-ripple>新增用户</ElButton>
             <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
           </ElSpace>
         </template>
@@ -50,6 +51,7 @@
   import UserDialog from './modules/user-dialog.vue'
   import { ElTag, ElMessageBox, ElImage } from 'element-plus'
   import { DialogType } from '@/types'
+  import { useAuth } from '@/hooks'
 
   defineOptions({ name: 'User' })
 
@@ -59,6 +61,7 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserData = ref<Partial<UserListItem>>({})
+  const { hasAuth } = useAuth()
 
   // 选中行
   const selectedRows = ref<UserListItem[]>([])
