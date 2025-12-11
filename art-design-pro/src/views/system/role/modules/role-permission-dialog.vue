@@ -43,7 +43,7 @@
 <script setup lang="ts">
   import { useMenuStore } from '@/store/modules/menu'
   import { formatMenuTitle } from '@/utils/router'
-  import { fetchGetMenuByRole } from '@/api/system-manage'
+  import { fetchGetMenuByRole, fetchSetMenuByRole } from '@/api/system-manage'
 
   type RoleListItem = Api.SystemManage.RoleListItem
   interface Props {
@@ -177,6 +177,16 @@
    */
   const savePermission = () => {
     // TODO: 调用保存权限接口
+    const tree = treeRef.value
+    if (!tree) return
+    let checkedIds: number[] = []
+    tree.getCheckedNodes().forEach((node: MenuNode) => {
+      console.log(node.id)
+      checkedIds.push(node.id)
+    })
+    console.log(tree.getCheckedNodes())
+    console.log(props.roleData)
+    fetchSetMenuByRole(props.roleData.id, checkedIds)
     ElMessage.success('权限保存成功')
     emit('success')
     handleClose()

@@ -17,3 +17,8 @@ class MenuCreateSchema(BaseModel):
     menu_type: int
     meta: dict[str, Any]
     component: str
+
+
+class AddRoleMenuSchema(BaseModel):
+    role_id: int
+    menu_ids: list[int]

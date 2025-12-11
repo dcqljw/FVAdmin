@@ -32,3 +32,14 @@ export function fetchGetMenuByRole(roleId: number) {
     }
   })
 }
+
+// 根据角色设置菜单
+export function fetchSetMenuByRole(roleId: number, menuIds: number[]) {
+  return request.post<any>({
+    url: '/api/menu/add_menu_permission',
+    data: {
+      role_id: roleId,
+      menu_ids: menuIds
+    }
+  })
+}

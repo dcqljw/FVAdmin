@@ -24,7 +24,6 @@ async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit:
     roles_all = await user.roles.all()
     roles = [i.code for i in roles_all]
     if "R_ADMIN" in roles:
-        total = await Role.filter().count()
         user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
         user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
         for idx, user in enumerate(user_roles_model):

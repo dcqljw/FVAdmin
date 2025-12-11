@@ -21,6 +21,7 @@ def convert_menu_to_tree(menu_list):
         for child in children:
             # 基础字段映射
             menu_node = {
+                "id": child["id"],
                 "name": child["name"],
                 "path": child["path"],
                 "component": child["component"],
