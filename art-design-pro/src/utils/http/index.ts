@@ -87,7 +87,8 @@ axiosInstance.interceptors.response.use(
     const { code, msg } = response.data
     if (code === 4001) {
       ElMessage.error(msg)
-      return Promise.reject(createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized))
+      return response
+      // return Promise.reject(createHttpError($t('httpMsg.unauthorized'), ApiStatus.unauthorized))
     }
     if (code === ApiStatus.success) {
       return response

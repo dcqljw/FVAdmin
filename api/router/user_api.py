@@ -13,15 +13,29 @@ router = APIRouter(prefix="/user", tags=["用户管理"])
 
 
 @router.get("/info")
-async def get_user(user: User = Depends(get_current_user)):
+async def get_user_info(user: User = Depends(get_current_user)):
     user = await UserPydantic.from_tortoise_orm(user)
     user = user.model_dump(mode="json", exclude={"password"})
     return SuccessResponse(data=user)
 
 
 @router.get("/list")
-async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit: int = 10):
-    user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
+async def get_user(user: User = Depends(get_current_user),
+                   current: int = 1,
+                   size: int = 10,
+                   username: str = None,
+                   phone: str = None,
+                   email: str = None,
+                   ):
+    query = User.all()
+    if username:
+        query = query.filter(username__contains=username)
+    if phone:
+        query = query.filter(phone__contains=phone)
+    if email:
+        query = query.filter(email__contains=email)
+    user_roles_model = await query.offset((current - 1) * size).limit(
+        size).all().prefetch_related("roles")
     user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
     for idx, user in enumerate(user_roles_model):
         user_list[idx]['roles'] = [i.code for i in user.roles]
@@ -35,66 +49,38 @@ async def add_user(user: UserCreateSchema, permission: str = Security(permission
         return ErrorResponse(msg="用户已存在")
     else:
         user.password = get_password_hash(user.password)
-        await User.create(**user.model_dump())
+        role = await Role.filter(code__in=user.role)
+        create_user = await User.create(**user.model_dump())
+        await create_user.roles.add(*role)
         return SuccessResponse(data={"msg": "添加用户成功"})
 
 
 @router.post('/edit')
-async def edit_user(user: UserCreateSchema, permission: str = Security(permission_check, scopes=['user:edit'])):
-    user_id = user.id
-    user = await User.get_or_none(id=user_id)
+async def edit_user(user_in: UserCreateSchema, permission: str = Security(permission_check, scopes=['user:edit'])):
+    user = await User.get_or_none(username=user_in.username)
     if user:
-        user.username = user.username
-        user.nickname = user.nickname
-        user.phone = user.phone
-        user.email = user.email
-        user.avatar = user.avatar
-        user.status = user.status
-        user.password = get_password_hash(user.password)
+        user.nickname = user_in.nickname
+        user.phone = user_in.phone
+        user.email = user_in.email
+        user.avatar = user_in.avatar
+        await user.roles.clear()
         await user.save()
+        role = await Role.filter(code__in=user_in.role)
+        await user.roles.add(*role)
         return SuccessResponse(data={"msg": "修改用户成功"})
     else:
         return ErrorResponse(msg="用户不存在")
 
 
-@router.post("/users/{user_id}")
-async def user_info(user_id: int, uid: str = Depends(verify_token_dep)):
-    user = await User.get_or_none(id=uid)
+@router.post('/delete')
+async def delete_user(user_id: int, permission: str = Security(permission_check, scopes=['user:delete'])):
+    if user_id == permission.id:
+        return ErrorResponse(msg="不能删除自己")
+    user = await User.get_or_none(id=user_id)
+    if user.username == "admin":
+        return ErrorResponse(msg="超级管理员无法删除")
     if user:
-        user = await UserPydantic.from_tortoise_orm(user)
-        user = user.model_dump(exclude={"password"})
-        return SuccessResponse(data=user)
+        await user.delete()
+        return SuccessResponse(data={"msg": "删除用户成功"})
     else:
         return ErrorResponse(msg="用户不存在")
-
-
-@router.post("/add_role")
-async def add_role(role: RoleCreateSchema):
-    role = await Role.create(**role.model_dump())
-    return SuccessResponse(data={"id": role.id})
-
-
-@router.post("/add_user_role")
-async def add_user_role(role_id: int, uid: str = Depends(verify_token_dep)):
-    user = await User.get_or_none(id=uid)
-    if user:
-        role = await Role.get_or_none(id=role_id)
-        if role:
-            await user.roles.add(role)
-            return SuccessResponse(data={"msg": "添加角色成功"})
-        else:
-            return ErrorResponse(msg="角色不存在")
-    else:
-        return ErrorResponse(msg="用户不存在")
-
-
-@router.post("/add_menu_permission")
-async def add_menu_permission(role_menu: RoleMenuCreateSchema):
-    role_id = role_menu.role_id
-    menu_id_list = role_menu.menu_id
-    role = await Role.get(id=role_id)
-    await role.menus.clear()
-    for i in menu_id_list:
-        menu = await Menu.get(id=i)
-        await role.menus.add(menu)
-    return {"msg": "添加权限成功"}

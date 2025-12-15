@@ -7,7 +7,13 @@
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
       <ElFormItem label="用户名" prop="username">
-        <ElInput v-model="formData.username" placeholder="请输入用户名" />
+        <ElInput
+          v-if="dialogType === 'edit'"
+          v-model="formData.username"
+          placeholder="请输入用户名"
+          disabled
+        />
+        <ElInput v-else v-model="formData.username" placeholder="请输入用户名" />
       </ElFormItem>
       <ElFormItem label="昵称" prop="nickname">
         <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
@@ -54,7 +60,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
-  import { fetchAddUser } from '@/api/user-manage'
+  import { fetchAddUser, fetchUpdateUser } from '@/api/user-manage'
   import { fetchGetRoleList } from '@/api/system-manage'
 
   interface Props {
@@ -136,7 +142,7 @@
       gender: isEdit && row ? row.userGender || '男' : '男',
       role: isEdit && row ? (Array.isArray(row.roles) ? row.roles : []) : [],
       password: isEdit && row ? '' : '',
-      nickname: isEdit && row ? row.nickName || '' : '',
+      nickname: isEdit && row ? row.nickname || '' : '',
       email: isEdit && row ? row.email || '' : ''
     })
     console.log('formData', formData)
@@ -169,14 +175,20 @@
     await formRef.value.validate((valid) => {
       if (valid) {
         if (dialogType.value === 'add') {
-          fetchAddUser(formData)
+          fetchAddUser(formData).then(() => {
+            ElMessage.success('添加成功')
+            dialogVisible.value = false
+          })
         } else if (dialogType.value === 'edit') {
           console.log(formData)
-          /* empty */
+          fetchUpdateUser(formData).then(() => {
+            ElMessage.success('修改成功')
+            dialogVisible.value = false
+          })
         }
         // ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
         // dialogVisible.value = false
-        // emit('submit')
+        emit('submit')
       }
     })
   }

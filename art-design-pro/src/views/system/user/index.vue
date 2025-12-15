@@ -52,6 +52,7 @@
   import { ElTag, ElMessageBox, ElImage } from 'element-plus'
   import { DialogType } from '@/types'
   import { useAuth } from '@/hooks'
+  import { fetchDeleteUser } from '@/api/user-manage'
 
   defineOptions({ name: 'User' })
 
@@ -139,8 +140,8 @@
                 previewTeleported: true
               }),
               h('div', { class: 'ml-2' }, [
-                h('p', { class: 'user-name' }, row.username),
-                h('p', { class: 'email' }, row.userEmail)
+                h('p', { class: 'user-name' }, row.nickname ? row.nickname : row.username),
+                h('p', { class: 'email' }, row.email)
               ])
             ])
           }
@@ -168,7 +169,7 @@
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 180,
           fixed: 'right', // 固定列
           formatter: (row) =>
             h('div', [
@@ -238,10 +239,12 @@
       cancelButtonText: '取消',
       type: 'error'
     }).then(() => {
-      ElMessage.success('注销成功')
+      fetchDeleteUser(row.id).then(() => {
+        ElMessage.success('注销成功')
+        refreshData()
+      })
     })
   }
-
   /**
    * 处理弹窗提交事件
    */

@@ -15,3 +15,4 @@ class UserCreateSchema(UserBase):
     email: str | None = None
     phone: str | None = None
     avatar: str | None = None
+    role: list[str]

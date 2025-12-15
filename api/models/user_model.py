@@ -21,6 +21,11 @@ class User(Model):
 
     roles = fields.ManyToManyField("models.Role", related_name="users")
 
+    class Meta:
+        indexes = [
+            ("username",),
+        ]
+
 
 UserPydantic = pydantic_model_creator(
     User,
