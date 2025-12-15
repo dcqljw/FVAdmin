@@ -288,9 +288,8 @@
    */
   const loadFormData = (): void => {
     if (!props.editData) return
-
+    console.log('loadFormData:', props.editData)
     isEdit.value = true
-
     if (form.menuType === 'menu') {
       const row = props.editData
       form.id = row.id || 0
@@ -330,6 +329,10 @@
 
     try {
       await formRef.value.validate()
+      console.log('form', form)
+      const row = props.editData
+      console.log('row', row)
+      form.id = row
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
       handleCancel()

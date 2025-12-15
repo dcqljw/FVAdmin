@@ -19,7 +19,7 @@
         @refresh="handleRefresh"
       >
         <template #left>
-          <ElButton v-auth="'add'" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
+          <ElButton @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
           <ElButton @click="toggleExpand" v-ripple>
             {{ isExpanded ? '收起' : '展开' }}
           </ElButton>
@@ -213,7 +213,7 @@
         return h('div', buttonStyle, [
           h(ArtButtonTable, {
             type: 'add',
-            onClick: () => handleAddAuth(),
+            onClick: () => handleAddAuth(row.id),
             title: '新增权限'
           }),
           h(ArtButtonTable, {
@@ -364,9 +364,9 @@
   /**
    * 添加权限按钮
    */
-  const handleAddAuth = (): void => {
+  const handleAddAuth = (id: number): void => {
     dialogType.value = 'menu'
-    editData.value = null
+    editData.value = id
     lockMenuType.value = false
     dialogVisible.value = true
   }
