@@ -70,7 +70,7 @@
   const searchForm = ref({
     username: undefined,
     userGender: undefined,
-    userPhone: undefined,
+    phone: undefined,
     userEmail: undefined,
     status: '1'
   })
@@ -122,7 +122,7 @@
       //   size: 'pageSize'
       // },
       columnsFactory: () => [
-        { type: 'selection' }, // 勾选列
+        { type: 'selection', fixed: 'left' }, // 勾选列
         { type: 'index', width: 60, label: '序号' }, // 序号
         {
           prop: 'userInfo',
@@ -151,7 +151,7 @@
           sortable: true,
           formatter: (row) => row.userGender
         },
-        { prop: 'userPhone', label: '手机号' },
+        { prop: 'phone', label: '手机号' },
         {
           prop: 'status',
           label: '状态',
@@ -161,7 +161,7 @@
           }
         },
         {
-          prop: 'createTime',
+          prop: 'created_at',
           label: '创建日期',
           sortable: true
         },

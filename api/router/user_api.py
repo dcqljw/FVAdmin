@@ -21,30 +21,40 @@ async def get_user(user: User = Depends(get_current_user)):
 
 @router.get("/list")
 async def get_user(user: User = Depends(get_current_user), skip: int = 0, limit: int = 10):
-    roles_all = await user.roles.all()
-    roles = [i.code for i in roles_all]
     user_roles_model = await User.filter().offset(skip).limit(limit).all().prefetch_related("roles")
     user_list = UserPydanticList(root=user_roles_model).model_dump(mode='json')['root']
     for idx, user in enumerate(user_roles_model):
-        # print([i.name for i in user.roles])
-        user_list[idx]['roles'] = [i.name for i in user.roles]
-        # print(RolePydanticList(root=user.roles))
+        user_list[idx]['roles'] = [i.code for i in user.roles]
     return SuccessResponse(data=user_list)
 
 
 @router.post("/add")
-async def add_user(user: UserCreateSchema, permission: str = Security(permission_check, scopes=['add'])):
-    return SuccessResponse(data={"msg": "添加用户成功"})
-    is_in_user = await User.get_or_none(username=user.username)
-    if is_in_user:
+async def add_user(user: UserCreateSchema, permission: str = Security(permission_check, scopes=['user:add'])):
+    is_user = await User.get_or_none(username=user.username)
+    if is_user:
         return ErrorResponse(msg="用户已存在")
     else:
         user.password = get_password_hash(user.password)
-        user = await User.create(**user.model_dump())
-        if user:
-            return SuccessResponse(data={"id": user.id})
-        else:
-            return ErrorResponse(msg="添加用户失败")
+        await User.create(**user.model_dump())
+        return SuccessResponse(data={"msg": "添加用户成功"})
+
+
+@router.post('/edit')
+async def edit_user(user: UserCreateSchema, permission: str = Security(permission_check, scopes=['user:edit'])):
+    user_id = user.id
+    user = await User.get_or_none(id=user_id)
+    if user:
+        user.username = user.username
+        user.nickname = user.nickname
+        user.phone = user.phone
+        user.email = user.email
+        user.avatar = user.avatar
+        user.status = user.status
+        user.password = get_password_hash(user.password)
+        await user.save()
+        return SuccessResponse(data={"msg": "修改用户成功"})
+    else:
+        return ErrorResponse(msg="用户不存在")
 
 
 @router.post("/users/{user_id}")

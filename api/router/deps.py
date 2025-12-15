@@ -34,6 +34,6 @@ async def permission_check(security_scopes: SecurityScopes, user: User = Depends
     for i in menus:
         for j in i.menus:
             if j.auth_mark in security_scopes.scopes:
-                return True
+                return user
     raise CustomException(code=4001, msg="权限不足")
     print(security_scopes, user)

@@ -9,8 +9,22 @@
       <ElFormItem label="用户名" prop="username">
         <ElInput v-model="formData.username" placeholder="请输入用户名" />
       </ElFormItem>
+      <ElFormItem label="昵称" prop="nickname">
+        <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
+      </ElFormItem>
+      <ElFormItem v-if="dialogType === 'add'" label="密码" prop="password">
+        <ElInput
+          v-model="formData.password"
+          placeholder="请输入密码"
+          type="password"
+          show-password
+        />
+      </ElFormItem>
       <ElFormItem label="手机号" prop="phone">
         <ElInput v-model="formData.phone" placeholder="请输入手机号" />
+      </ElFormItem>
+      <ElFormItem label="邮箱" prop="email">
+        <ElInput v-model="formData.email" placeholder="请输入邮箱" />
       </ElFormItem>
       <ElFormItem label="性别" prop="gender">
         <ElSelect v-model="formData.gender">
@@ -22,9 +36,9 @@
         <ElSelect v-model="formData.role" multiple>
           <ElOption
             v-for="role in roleList"
-            :key="role.roleCode"
-            :value="role.roleCode"
-            :label="role.roleName"
+            :key="role.code"
+            :value="role.code"
+            :label="role.name"
           />
         </ElSelect>
       </ElFormItem>
@@ -39,9 +53,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ROLE_LIST_DATA } from '@/mock/temp/formData'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchAddUser } from '@/api/user-manage'
+  import { fetchGetRoleList } from '@/api/system-manage'
 
   interface Props {
     visible: boolean
@@ -58,7 +72,7 @@
   const emit = defineEmits<Emits>()
 
   // 角色列表数据
-  const roleList = ref(ROLE_LIST_DATA)
+  const roleList = ref<Api.SystemManage.RoleListItem[]>()
 
   // 对话框显示控制
   const dialogVisible = computed({
@@ -73,10 +87,14 @@
 
   // 表单数据
   const formData = reactive({
+    avatar: '',
     username: '',
+    nickname: '',
     phone: '',
     gender: '男',
-    role: [] as string[]
+    role: [] as string[],
+    password: '',
+    email: ''
   })
 
   // 表单验证规则
@@ -84,6 +102,10 @@
     username: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
       { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
     ],
     phone: [
       { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -98,15 +120,26 @@
    * 根据对话框类型（新增/编辑）填充表单
    */
   const initFormData = () => {
+    console.log('initFormData')
+    console.log('roleList', roleList.value)
+    if (!roleList.value) {
+      fetchGetRoleList({}).then((res) => {
+        roleList.value = res
+      })
+    }
     const isEdit = props.type === 'edit' && props.userData
     const row = props.userData
 
     Object.assign(formData, {
       username: isEdit && row ? row.username || '' : '',
-      phone: isEdit && row ? row.userPhone || '' : '',
+      phone: isEdit && row ? row.phone || '' : '',
       gender: isEdit && row ? row.userGender || '男' : '男',
-      role: isEdit && row ? (Array.isArray(row.userRoles) ? row.userRoles : []) : []
+      role: isEdit && row ? (Array.isArray(row.roles) ? row.roles : []) : [],
+      password: isEdit && row ? '' : '',
+      nickname: isEdit && row ? row.nickName || '' : '',
+      email: isEdit && row ? row.email || '' : ''
     })
+    console.log('formData', formData)
   }
 
   /**
@@ -135,7 +168,12 @@
 
     await formRef.value.validate((valid) => {
       if (valid) {
-        fetchAddUser()
+        if (dialogType.value === 'add') {
+          fetchAddUser(formData)
+        } else if (dialogType.value === 'edit') {
+          console.log(formData)
+          /* empty */
+        }
         // ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
         // dialogVisible.value = false
         // emit('submit')

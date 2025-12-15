@@ -1,30 +1,30 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Security
 from tortoise.exceptions import DoesNotExist
 from tortoise.functions import Count
 
 from core.util import convert_menu_to_tree
-from models.role_model import Role, RolePydanticList
 from models.user_model import User
-from router.deps import verify_token_dep
+from models.role_model import Role
+from router.deps import verify_token_dep, permission_check
 from schemas.response import SuccessResponse
 from schemas.menu import MenuCreateSchema, AddRoleMenuSchema
-from models.menu_model import Menu, MenuPydantic, MenuPydanticList
+from models.menu_model import Menu, MenuPydanticList
 
 router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 
 @router.get("/list")
-async def menu_list(uid: str = Depends(verify_token_dep)):
-    """
-    根据用户权限获取菜单列表
-    :param uid:
-    :return:
-    """
-    data = await User.get(id=uid).prefetch_related("roles")
+async def menu_list(user: User = Security(permission_check, scopes=['menu:list'])):
+    # data = await user
+    # data = await User.get(id=uid).prefetch_related("roles")
     all_menu = []
-    for j in data.roles:
-        menu = await j.menus
-        all_menu.extend(menu)
+    if user.username == "admin":
+        all_menu.extend(await Menu.filter().all())
+    else:
+        data = await user.roles.all()
+        for j in data:
+            menu = await j.menus
+            all_menu.extend(menu)
     # menu_orm = await Menu.all()
     pydantic_list = MenuPydanticList(all_menu).model_dump(mode='json')
     tree = convert_menu_to_tree(pydantic_list)

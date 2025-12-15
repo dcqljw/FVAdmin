@@ -97,19 +97,19 @@ declare namespace Api {
       status: string
       username: string
       userGender: string
-      nickName: string
-      userPhone: string
-      userEmail: string
-      userRoles: string[]
+      nickname: string
+      phone: string
+      email: string
+      roles: string[]
       createBy: string
-      createTime: string
+      created_at: string
       updateBy: string
       updateTime: string
     }
 
     /** 用户搜索参数 */
     type UserSearchParams = Partial<
-      Pick<UserListItem, 'id' | 'username' | 'userGender' | 'userPhone' | 'userEmail' | 'status'> &
+      Pick<UserListItem, 'id' | 'username' | 'userGender' | 'phone' | 'email' | 'status'> &
         Api.Common.CommonSearchParams
     >
 
@@ -120,15 +120,15 @@ declare namespace Api {
     interface RoleListItem {
       id: number
       name: string
-      cod: string
+      code: string
       description: string
       enabled: boolean
-      createTime: string
+      created_at: string
     }
 
     /** 角色搜索参数 */
     type RoleSearchParams = Partial<
-      Pick<RoleListItem, 'id' | 'name' | 'cod' | 'description' | 'enabled'> &
+      Pick<RoleListItem, 'id' | 'name' | 'code' | 'description' | 'enabled'> &
         Api.Common.CommonSearchParams
     >
   }
