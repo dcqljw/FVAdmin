@@ -146,12 +146,6 @@
             ])
           }
         },
-        {
-          prop: 'userGender',
-          label: '性别',
-          sortable: true,
-          formatter: (row) => row.userGender
-        },
         { prop: 'phone', label: '手机号' },
         {
           prop: 'status',

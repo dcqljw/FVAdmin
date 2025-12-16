@@ -32,12 +32,6 @@
       <ElFormItem label="邮箱" prop="email">
         <ElInput v-model="formData.email" placeholder="请输入邮箱" />
       </ElFormItem>
-      <ElFormItem label="性别" prop="gender">
-        <ElSelect v-model="formData.gender">
-          <ElOption label="男" value="男" />
-          <ElOption label="女" value="女" />
-        </ElSelect>
-      </ElFormItem>
       <ElFormItem label="角色" prop="role">
         <ElSelect v-model="formData.role" multiple>
           <ElOption
@@ -97,7 +91,6 @@
     username: '',
     nickname: '',
     phone: '',
-    gender: '男',
     role: [] as string[],
     password: '',
     email: ''

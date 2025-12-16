@@ -84,17 +84,6 @@
         placeholder: '请选择状态',
         options: statusOptions.value
       }
-    },
-    {
-      label: '性别',
-      key: 'userGender',
-      type: 'radiogroup',
-      props: {
-        options: [
-          { label: '男', value: '1' },
-          { label: '女', value: '2' }
-        ]
-      }
     }
   ])
 

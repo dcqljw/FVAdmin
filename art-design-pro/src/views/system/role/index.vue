@@ -108,11 +108,6 @@
       excludeParams: ['daterange'],
       columnsFactory: () => [
         {
-          prop: 'roleId',
-          label: '角色ID',
-          width: 100
-        },
-        {
           prop: 'name',
           label: '角色名称',
           minWidth: 120
