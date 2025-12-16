@@ -53,14 +53,14 @@
   const formItems = computed(() => [
     {
       label: '角色名称',
-      key: 'roleName',
+      key: 'name',
       type: 'input',
       placeholder: '请输入角色名称',
       clearable: true
     },
     {
       label: '角色编码',
-      key: 'roleCode',
+      key: 'code',
       type: 'input',
       placeholder: '请输入角色编码',
       clearable: true

@@ -3,8 +3,9 @@ from pydantic import BaseModel
 
 class RoleCreateSchema(BaseModel):
     name: str
+    code: str
     description: str
-    enabled: int
+    enabled: bool
 
 
 class RoleMenuCreateSchema(BaseModel):

@@ -27,3 +27,12 @@ export function fetchGetUserInfo() {
     // }
   })
 }
+
+export function fetchEditPassword(fromData: any) {
+  return request.post<any>({
+    url: '/api/user/edit-password',
+    data: {
+      ...fromData
+    }
+  })
+}

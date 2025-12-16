@@ -58,7 +58,7 @@
 <script setup lang="ts">
   import { ButtonMoreItem } from '@/components/core/forms/art-button-more/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetRoleList } from '@/api/system-manage'
+  import { fetchDeleteRole, fetchGetRoleList } from '@/api/system-manage'
   import ArtButtonMore from '@/components/core/forms/art-button-more/index.vue'
   import RoleSearch from './modules/role-search.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
@@ -142,7 +142,13 @@
           prop: 'created_at',
           label: '创建日期',
           width: 180,
-          sortable: true
+          sortable: true,
+          formatter: (row) => {
+            const date = new Date(row.created_at)
+            const [datePart, timePart] = date.toLocaleString().split(' ')
+            const formattedDate = datePart.replace(/\//g, '-')
+            return `${formattedDate} ${timePart}`
+          }
         },
         {
           prop: 'operation',
@@ -226,8 +232,9 @@
       type: 'warning'
     })
       .then(() => {
-        // TODO: 调用删除接口
-        ElMessage.success('删除成功')
+        fetchDeleteRole(row.id).then((res) => {
+          ElMessage.success(res.msg)
+        })
         refreshData()
       })
       .catch(() => {

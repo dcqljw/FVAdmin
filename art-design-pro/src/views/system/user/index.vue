@@ -13,8 +13,9 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElSpace wrap>
-            <ElButton v-if="hasAuth('add')" @click="showDialog('add')" v-ripple>新增用户</ElButton>
-            <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
+            <ElButton v-if="hasAuth('user:add')" @click="showDialog('add')" v-ripple
+              >新增用户</ElButton
+            >
           </ElSpace>
         </template>
       </ArtTableHeader>
@@ -46,13 +47,12 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { ACCOUNT_TABLE_DATA } from '@/mock/temp/formData'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetUserList } from '@/api/system-manage'
+  import { fetchGetUserList, fetchDeleteUser, fetchResetPassword } from '@/api/system-manage'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
   import { ElTag, ElMessageBox, ElImage } from 'element-plus'
   import { DialogType } from '@/types'
   import { useAuth } from '@/hooks'
-  import { fetchDeleteUser } from '@/api/user-manage'
 
   defineOptions({ name: 'User' })
 
@@ -167,14 +167,21 @@
           fixed: 'right', // 固定列
           formatter: (row) =>
             h('div', [
-              h(ArtButtonTable, {
-                type: 'edit',
-                onClick: () => showDialog('edit', row)
-              }),
-              h(ArtButtonTable, {
-                type: 'delete',
-                onClick: () => deleteUser(row)
-              })
+              hasAuth('user:edit') &&
+                h(ArtButtonTable, {
+                  type: 'edit',
+                  onClick: () => showDialog('edit', row)
+                }),
+              hasAuth('user:delete') &&
+                h(ArtButtonTable, {
+                  type: 'delete',
+                  onClick: () => deleteUser(row)
+                }),
+              hasAuth('user:reset-password') &&
+                h(ArtButtonTable, {
+                  icon: 'ri:refresh-line',
+                  onClick: () => resetPassword(row)
+                })
             ])
         }
       ]
@@ -236,6 +243,21 @@
       fetchDeleteUser(row.id).then(() => {
         ElMessage.success('注销成功')
         refreshData()
+      })
+    })
+  }
+  const resetPassword = (row: UserListItem): void => {
+    console.log('重置密码:', row)
+    ElMessageBox.confirm(`确定要重置该用户密码吗？`, '重置密码', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'error'
+    }).then(() => {
+      fetchResetPassword(row.id).then((res) => {
+        ElMessageBox.confirm(`新密码为：${res.new_password}`, '重置密码', {
+          confirmButtonText: '确定',
+          type: 'success'
+        })
       })
     })
   }

@@ -106,19 +106,26 @@
         <div class="art-card-sm my-5">
           <h1 class="p-4 text-xl font-normal border-b border-g-300">更改密码</h1>
 
-          <ElForm :model="pwdForm" class="box-border p-5" label-width="86px" label-position="top">
-            <ElFormItem label="当前密码" prop="password">
+          <ElForm
+            :model="pwdForm"
+            class="box-border p-5"
+            label-width="86px"
+            label-position="top"
+            :rules="passwordRules"
+            ref="pwdFormRef"
+          >
+            <ElFormItem label="当前密码" prop="old_password">
               <ElInput
-                v-model="pwdForm.password"
+                v-model="pwdForm.old_password"
                 type="password"
                 :disabled="!isEditPwd"
                 show-password
               />
             </ElFormItem>
 
-            <ElFormItem label="新密码" prop="newPassword">
+            <ElFormItem label="新密码" prop="new_password">
               <ElInput
-                v-model="pwdForm.newPassword"
+                v-model="pwdForm.new_password"
                 type="password"
                 :disabled="!isEditPwd"
                 show-password
@@ -149,6 +156,7 @@
 <script setup lang="ts">
   import { useUserStore } from '@/store/modules/user'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchEditPassword } from '@/api/auth'
 
   defineOptions({ name: 'UserCenter' })
 
@@ -159,6 +167,7 @@
   const isEditPwd = ref(false)
   const date = ref('')
   const ruleFormRef = ref<FormInstance>()
+  const pwdFormRef = ref<FormInstance>()
 
   /**
    * 用户信息表单
@@ -177,9 +186,9 @@
    * 密码修改表单
    */
   const pwdForm = reactive({
-    password: '123456',
-    newPassword: '123456',
-    confirmPassword: '123456'
+    old_password: '',
+    new_password: '',
+    confirmPassword: ''
   })
 
   /**
@@ -198,6 +207,30 @@
     mobile: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
     address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
     sex: [{ required: true, message: '请选择性别', trigger: 'blur' }]
+  })
+
+  const validatePassword = (rule: any, value: string, callback: any) => {
+    if (value !== pwdForm.new_password) {
+      callback(new Error('两次密码不一致'))
+    } else {
+      callback()
+    }
+  }
+
+  const passwordRules = reactive<FormRules>({
+    old_password: [
+      { required: true, message: '请输入当前密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    ],
+    new_password: [
+      { required: true, message: '请输入新密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    ],
+    confirmPassword: [
+      { required: true, message: '请输入确认密码', trigger: 'blur' },
+      { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' },
+      { validator: validatePassword, trigger: 'blur' }
+    ]
   })
 
   /**
@@ -243,5 +276,11 @@
    */
   const editPwd = () => {
     isEditPwd.value = !isEditPwd.value
+    if (!isEditPwd.value) {
+      if (!pwdFormRef.value) return
+      fetchEditPassword(pwdForm).then((res) => {
+        console.log(res)
+      })
+    }
   }
 </script>

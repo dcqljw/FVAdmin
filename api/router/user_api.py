@@ -1,12 +1,15 @@
+import random
+import string
+
 from fastapi import APIRouter, Depends, Security
 
-from core.security import get_password_hash
+from core.security import get_password_hash, verify_password
 from models.menu_model import Menu
 from models.user_model import User, UserPydantic, UserPydanticList
 from models.role_model import Role, RolePydantic, RolePydanticList
 from router.deps import verify_token_dep, get_current_user, permission_check
 from schemas.response import SuccessResponse, ErrorResponse
-from schemas.user import UserCreateSchema
+from schemas.user import UserCreateSchema, EditPasswordSchema
 from schemas.role import RoleCreateSchema, RoleMenuCreateSchema
 
 router = APIRouter(prefix="/user", tags=["用户管理"])
@@ -82,5 +85,33 @@ async def delete_user(user_id: int, permission: str = Security(permission_check,
     if user:
         await user.delete()
         return SuccessResponse(data={"msg": "删除用户成功"})
+    else:
+        return ErrorResponse(msg="用户不存在")
+
+
+@router.post('/edit-password')
+async def edit_password(password_in: EditPasswordSchema, current_user: User = Depends(get_current_user)):
+    user_data = await User.get_or_none(username=current_user.username)
+    if user_data:
+        if verify_password(password_in.old_password, user_data.password):
+            password = get_password_hash(password_in.new_password)
+            user_data.password = password
+            await user_data.save()
+            return SuccessResponse(data={"msg": "修改密码成功"})
+        else:
+            return ErrorResponse(msg="原密码错误")
+    else:
+        return ErrorResponse(msg="原密码错误")
+
+
+@router.post('/reset-password')
+async def reset_password(user_id: int, permission: str = Security(permission_check, scopes=['user:reset-password'])):
+    user = await User.get_or_none(id=user_id)
+    if user:
+        random_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
+        new_password = "".join(random.choices(random_str, k=8))
+        user.password = get_password_hash(new_password)
+        await user.save()
+        return SuccessResponse(data={"new_password": new_password})
     else:
         return ErrorResponse(msg="用户不存在")

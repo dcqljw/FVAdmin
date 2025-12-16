@@ -16,3 +16,8 @@ class UserCreateSchema(UserBase):
     phone: str | None = None
     avatar: str | None = None
     role: list[str]
+
+
+class EditPasswordSchema(BaseModel):
+    old_password: str
+    new_password: str

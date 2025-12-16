@@ -5,7 +5,7 @@ from tortoise.functions import Count
 from core.util import convert_menu_to_tree
 from models.user_model import User
 from models.role_model import Role
-from router.deps import verify_token_dep, permission_check
+from router.deps import verify_token_dep, permission_check, get_current_user
 from schemas.response import SuccessResponse
 from schemas.menu import MenuCreateSchema, AddRoleMenuSchema
 from models.menu_model import Menu, MenuPydanticList
@@ -14,14 +14,14 @@ router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 
 @router.get("/list")
-async def menu_list(user: User = Security(permission_check, scopes=['menu:list'])):
+async def menu_list(current_user: User = Depends(get_current_user)):
     # data = await user
     # data = await User.get(id=uid).prefetch_related("roles")
     all_menu = []
-    if user.username == "admin":
+    if current_user.username == "admin":
         all_menu.extend(await Menu.filter().all())
     else:
-        data = await user.roles.all()
+        data = await current_user.roles.all()
         for j in data:
             menu = await j.menus
             all_menu.extend(menu)

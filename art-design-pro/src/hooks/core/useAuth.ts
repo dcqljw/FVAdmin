@@ -63,7 +63,12 @@ export const useAuth = () => {
     if (isFrontendMode.value) {
       return frontendAuthList.includes(auth)
     }
-
+    console.log('后端模式', auth)
+    console.log('后端模式', backendAuthList)
+    console.log(
+      '后端模式',
+      backendAuthList.some((item) => item?.authMark === auth)
+    )
     // 后端模式
     return backendAuthList.some((item) => item?.authMark === auth)
   }

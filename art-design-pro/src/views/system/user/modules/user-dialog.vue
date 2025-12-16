@@ -8,12 +8,10 @@
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
       <ElFormItem label="用户名" prop="username">
         <ElInput
-          v-if="dialogType === 'edit'"
           v-model="formData.username"
           placeholder="请输入用户名"
-          disabled
+          :disabled="dialogType === 'edit'"
         />
-        <ElInput v-else v-model="formData.username" placeholder="请输入用户名" />
       </ElFormItem>
       <ElFormItem label="昵称" prop="nickname">
         <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
@@ -54,8 +52,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
-  import { fetchAddUser, fetchUpdateUser } from '@/api/user-manage'
-  import { fetchGetRoleList } from '@/api/system-manage'
+  import { fetchAddUser, fetchUpdateUser, fetchGetRoleList } from '@/api/system-manage'
 
   interface Props {
     visible: boolean
