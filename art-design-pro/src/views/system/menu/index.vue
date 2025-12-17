@@ -55,7 +55,7 @@
   import { useTableColumns } from '@/hooks/core/useTableColumns'
   import type { AppRouteRecord } from '@/types/router'
   import MenuDialog from './modules/menu-dialog.vue'
-  import { fetchGetMenuList } from '@/api/system-manage'
+  import { fetchAddMenu, fetchDeleteMenu, fetchGetMenuList } from '@/api/system-manage'
   import { ElTag, ElMessageBox } from 'element-plus'
 
   defineOptions({ name: 'Menus' })
@@ -213,7 +213,7 @@
         return h('div', buttonStyle, [
           h(ArtButtonTable, {
             type: 'add',
-            onClick: () => handleAddAuth(row.id),
+            onClick: () => handleAddAuth(<number>row.id),
             title: '新增权限'
           }),
           h(ArtButtonTable, {
@@ -222,7 +222,7 @@
           }),
           h(ArtButtonTable, {
             type: 'delete',
-            onClick: () => handleDeleteMenu()
+            onClick: () => handleDeleteMenu(<number>row.id)
           })
         ])
       }
@@ -357,7 +357,7 @@
   const handleAddMenu = (): void => {
     dialogType.value = 'menu'
     editData.value = null
-    lockMenuType.value = true
+    lockMenuType.value = false
     dialogVisible.value = true
   }
 
@@ -415,22 +415,39 @@
    */
   const handleSubmit = (formData: MenuFormData): void => {
     console.log('提交数据:', formData)
+    const form = {
+      parent_id: 0,
+      name: formData.label,
+      path: formData.path,
+      meta: {
+        title: formData.name,
+        icon: formData.icon
+      },
+      component: formData.component,
+      sort: formData.sort,
+      status: formData.isEnable,
+      auth_mark: '',
+      type: formData.menuType === 'menu' ? 1 : 2
+    }
+    console.log('form_in:', form)
     // TODO: 调用API保存数据
+    fetchAddMenu(form)
     getMenuList()
   }
 
   /**
    * 删除菜单
    */
-  const handleDeleteMenu = async (): Promise<void> => {
+  const handleDeleteMenu = async (id: number): Promise<void> => {
     try {
       await ElMessageBox.confirm('确定要删除该菜单吗？删除后无法恢复', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
+      }).then(() => {
+        fetchDeleteMenu(id)
       })
-      ElMessage.success('删除成功')
-      getMenuList()
+      await getMenuList()
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')
@@ -448,8 +465,7 @@
         cancelButtonText: '取消',
         type: 'warning'
       })
-      ElMessage.success('删除成功')
-      getMenuList()
+      await getMenuList()
     } catch (error) {
       if (error !== 'cancel') {
         ElMessage.error('删除失败')

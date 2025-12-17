@@ -6,7 +6,7 @@ from core.util import convert_menu_to_tree
 from models.user_model import User
 from models.role_model import Role
 from router.deps import verify_token_dep, permission_check, get_current_user
-from schemas.response import SuccessResponse
+from schemas.response import SuccessResponse, ErrorResponse
 from schemas.menu import MenuCreateSchema, AddRoleMenuSchema
 from models.menu_model import Menu, MenuPydanticList
 
@@ -15,8 +15,6 @@ router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 @router.get("/list")
 async def menu_list(current_user: User = Depends(get_current_user)):
-    # data = await user
-    # data = await User.get(id=uid).prefetch_related("roles")
     all_menu = []
     if current_user.username == "admin":
         all_menu.extend(await Menu.filter().all())
@@ -83,6 +81,31 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
     return SuccessResponse(data=leaf_menu_ids)
 
 
+@router.post("/add")
+async def add_menu(menu: MenuCreateSchema, uid: str = Depends(verify_token_dep)):
+    await Menu.create(**menu.model_dump())
+    return SuccessResponse(data={"message": "添加菜单成功"})
+
+
+@router.post("/edit")
+async def edit_menu(menu_in: MenuCreateSchema, uid: str = Depends(verify_token_dep)):
+    menu = await Menu.get_or_none(name=menu_in.name)
+    if menu:
+        if menu.type == 1:
+            menu.name = menu_in.name
+            menu.path = menu_in.path
+            menu.meta = menu_in.meta
+            menu.component = menu_in.component
+            menu.sort = menu_in.sort
+            menu.status = menu_in.status
+            await menu.save()
+        else:
+            pass
+        return SuccessResponse(data={"message": "修改菜单成功"})
+    else:
+        return ErrorResponse(msg="菜单不存在")
+
+
 @router.post("/add_menu_permission")
 async def add_menu_permission(role_menu: AddRoleMenuSchema):
     """
@@ -98,12 +121,12 @@ async def add_menu_permission(role_menu: AddRoleMenuSchema):
     return SuccessResponse(data={"message": "添加菜单成功"})
 
 
-@router.post("/add_menu")
-async def add_menu(menu: MenuCreateSchema, uid: str = Depends(verify_token_dep)):
-    menu = await Menu.create(**menu.model_dump())
-    return SuccessResponse(data={"message": "添加菜单成功"})
-
-
-@router.post("/add_permission")
-async def add_permission(permission: dict):
-    return {"message": "添加权限成功"}
+@router.post("/delete")
+async def delete_menu(menu_id: int,
+                      current_user: User = Security(permission_check, scopes=['menu:delete'])):
+    menu = await Menu.get_or_none(id=menu_id)
+    if menu.name == "Menus":
+        return ErrorResponse(msg="不能删除根菜单")
+    else:
+        await menu.delete()
+        return SuccessResponse(data={"message": "删除菜单成功"})

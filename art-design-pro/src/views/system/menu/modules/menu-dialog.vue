@@ -271,8 +271,7 @@
    */
   const disableMenuType = computed(() => {
     if (isEdit.value) return true
-    if (!isEdit.value && form.menuType === 'menu' && props.lockType) return true
-    return false
+    return !isEdit.value && form.menuType === 'menu' && props.lockType
   })
 
   /**
@@ -289,7 +288,9 @@
   const loadFormData = (): void => {
     if (!props.editData) return
     console.log('loadFormData:', props.editData)
-    isEdit.value = true
+    if (props.lockType) {
+      isEdit.value = true
+    }
     if (form.menuType === 'menu') {
       const row = props.editData
       form.id = row.id || 0

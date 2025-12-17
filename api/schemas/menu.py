@@ -14,9 +14,12 @@ class MenuCreateSchema(BaseModel):
     parent_id: int
     name: str
     path: str
-    menu_type: int
     meta: dict[str, Any]
     component: str
+    sort: int
+    status: bool
+    auth_mark: str
+    type: int
 
 
 class AddRoleMenuSchema(BaseModel):

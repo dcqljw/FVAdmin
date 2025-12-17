@@ -165,17 +165,12 @@
     await formRef.value.validate((valid) => {
       if (valid) {
         if (dialogType.value === 'add') {
-          fetchAddUser(formData).then(() => {
-            ElMessage.success('添加成功')
-            dialogVisible.value = false
-          })
+          fetchAddUser(formData)
         } else if (dialogType.value === 'edit') {
           console.log(formData)
-          fetchUpdateUser(formData).then(() => {
-            ElMessage.success('修改成功')
-            dialogVisible.value = false
-          })
+          fetchUpdateUser(formData)
         }
+        dialogVisible.value = false
         // ElMessage.success(dialogType.value === 'add' ? '添加成功' : '更新成功')
         // dialogVisible.value = false
         emit('submit')

@@ -98,3 +98,19 @@ export function fetchEditRole(fromData: any) {
     }
   })
 }
+// 添加菜单
+export function fetchAddMenu(fromData: any) {
+  return request.post<any>({
+    url: '/api/menu/add',
+    data: {
+      ...fromData
+    }
+  })
+}
+
+// 删除菜单
+export function fetchDeleteMenu(id: number) {
+  return request.post<any>({
+    url: `/api/menu/delete?menu_id=${id}`
+  })
+}
