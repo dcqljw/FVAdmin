@@ -88,13 +88,6 @@
   }
 
   /**
-   * 打开 GitHub 页面
-   */
-  const toGithub = (): void => {
-    window.open(WEB_LINKS.GITHUB)
-  }
-
-  /**
    * 打开锁屏功能
    */
   const lockScreen = (): void => {

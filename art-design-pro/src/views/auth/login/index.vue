@@ -18,18 +18,18 @@
             @keyup.enter="handleSubmit"
             style="margin-top: 25px"
           >
-            <ElFormItem prop="account">
-              <ElSelect v-model="formData.account" @change="setupAccount">
-                <ElOption
-                  v-for="account in accounts"
-                  :key="account.key"
-                  :label="account.label"
-                  :value="account.key"
-                >
-                  <span>{{ account.label }}</span>
-                </ElOption>
-              </ElSelect>
-            </ElFormItem>
+            <!--            <ElFormItem prop="account">-->
+            <!--              <ElSelect v-model="formData.account" @change="setupAccount">-->
+            <!--                <ElOption-->
+            <!--                  v-for="account in accounts"-->
+            <!--                  :key="account.key"-->
+            <!--                  :label="account.label"-->
+            <!--                  :value="account.key"-->
+            <!--                >-->
+            <!--                  <span>{{ account.label }}</span>-->
+            <!--                </ElOption>-->
+            <!--              </ElSelect>-->
+            <!--            </ElFormItem>-->
             <ElFormItem prop="username">
               <ElInput
                 class="custom-height"
@@ -73,14 +73,14 @@
               </p>
             </div>
 
-            <div class="flex-cb mt-2 text-sm">
-              <ElCheckbox v-model="formData.rememberPassword">{{
-                $t('login.rememberPwd')
-              }}</ElCheckbox>
-              <RouterLink class="text-theme" :to="{ name: 'ForgetPassword' }">{{
-                $t('login.forgetPwd')
-              }}</RouterLink>
-            </div>
+            <!--            <div class="flex-cb mt-2 text-sm">-->
+            <!--              <ElCheckbox v-model="formData.rememberPassword">{{-->
+            <!--                $t('login.rememberPwd')-->
+            <!--              }}</ElCheckbox>-->
+            <!--              <RouterLink class="text-theme" :to="{ name: 'ForgetPassword' }">{{-->
+            <!--                $t('login.forgetPwd')-->
+            <!--              }}</RouterLink>-->
+            <!--            </div>-->
 
             <div style="margin-top: 30px">
               <ElButton
@@ -94,12 +94,12 @@
               </ElButton>
             </div>
 
-            <div class="mt-5 text-sm text-gray-600">
-              <span>{{ $t('login.noAccount') }}</span>
-              <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
-                $t('login.register')
-              }}</RouterLink>
-            </div>
+            <!--            <div class="mt-5 text-sm text-gray-600">-->
+            <!--              <span>{{ $t('login.noAccount') }}</span>-->
+            <!--              <RouterLink class="text-theme" :to="{ name: 'Register' }">{{-->
+            <!--                $t('login.register')-->
+            <!--              }}</RouterLink>-->
+            <!--            </div>-->
           </ElForm>
         </div>
       </div>
@@ -138,29 +138,7 @@
     roles: string[]
   }
 
-  const accounts = computed<Account[]>(() => [
-    {
-      key: 'super',
-      label: t('login.roles.super'),
-      userName: 'admin',
-      password: 'admin',
-      roles: ['R_SUPER']
-    },
-    {
-      key: 'admin',
-      label: t('login.roles.admin'),
-      userName: 'string',
-      password: 'string',
-      roles: ['R_ADMIN']
-    },
-    {
-      key: 'user',
-      label: t('login.roles.user'),
-      userName: 'User',
-      password: '123456',
-      roles: ['R_USER']
-    }
-  ])
+  const accounts = computed<Account[]>(() => [])
 
   const dragVerify = ref()
 

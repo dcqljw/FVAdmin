@@ -146,7 +146,10 @@ export const useUserStore = defineStore(
       if (currentUserId) {
         localStorage.setItem(StorageConfig.LAST_USER_ID_KEY, String(currentUserId))
       }
-
+      // 清空work tab
+      const worktabStore = useWorktabStore()
+      worktabStore.opened = []
+      worktabStore.keepAliveExclude = []
       // 清空用户信息
       info.value = {}
       // 重置登录状态

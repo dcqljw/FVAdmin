@@ -107,7 +107,14 @@ export function fetchAddMenu(fromData: any) {
     }
   })
 }
-
+export function fetchEditMenu(fromData: any) {
+  return request.post<any>({
+    url: '/api/menu/edit',
+    data: {
+      ...fromData
+    }
+  })
+}
 // 删除菜单
 export function fetchDeleteMenu(id: number) {
   return request.post<any>({

@@ -82,13 +82,13 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
 
 
 @router.post("/add")
-async def add_menu(menu: MenuCreateSchema, uid: str = Depends(verify_token_dep)):
+async def add_menu(menu: MenuCreateSchema, current_user: User = Security(permission_check, scopes=['menu:add'])):
     await Menu.create(**menu.model_dump())
     return SuccessResponse(data={"message": "添加菜单成功"})
 
 
 @router.post("/edit")
-async def edit_menu(menu_in: MenuCreateSchema, uid: str = Depends(verify_token_dep)):
+async def edit_menu(menu_in: MenuCreateSchema, current_user: User = Security(permission_check, scopes=['menu:edit'])):
     menu = await Menu.get_or_none(name=menu_in.name)
     if menu:
         if menu.type == 1:
@@ -100,7 +100,10 @@ async def edit_menu(menu_in: MenuCreateSchema, uid: str = Depends(verify_token_d
             menu.status = menu_in.status
             await menu.save()
         else:
-            pass
+            menu.name = menu_in.name
+            menu.meta = menu_in.meta
+            menu.auth_mark = menu_in.auth_mark
+            await menu.save()
         return SuccessResponse(data={"message": "修改菜单成功"})
     else:
         return ErrorResponse(msg="菜单不存在")
@@ -128,5 +131,6 @@ async def delete_menu(menu_id: int,
     if menu.name == "Menus":
         return ErrorResponse(msg="不能删除根菜单")
     else:
+        await Menu.filter(parent_id=menu_id).delete()
         await menu.delete()
         return SuccessResponse(data={"message": "删除菜单成功"})

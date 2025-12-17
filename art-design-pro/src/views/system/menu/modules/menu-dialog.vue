@@ -290,6 +290,9 @@
     console.log('loadFormData:', props.editData)
     if (props.lockType) {
       isEdit.value = true
+    } else {
+      form.id = props.editData.id
+      return
     }
     if (form.menuType === 'menu') {
       const row = props.editData
@@ -333,7 +336,10 @@
       console.log('form', form)
       const row = props.editData
       console.log('row', row)
-      form.id = row
+      if (row) {
+        form.parent_id = row.id
+      }
+      console.log('form', form)
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
       handleCancel()
