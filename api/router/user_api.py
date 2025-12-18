@@ -75,6 +75,18 @@ async def edit_user(user_in: UserCreateSchema, permission: str = Security(permis
         return ErrorResponse(msg="用户不存在")
 
 
+@router.post('/edit-profile')
+async def edit_profile(user_in: UserCreateSchema, current_user: User = Depends(get_current_user)):
+    user = await User.get_or_none(username=current_user.username)
+    if user:
+        user.nickname = user_in.nickname
+        user.phone = user_in.phone
+        user.email = user_in.email
+        user.avatar = user_in.avatar
+        await user.save()
+        return SuccessResponse(data={"msg": "修改用户成功"})
+
+
 @router.post('/delete')
 async def delete_user(user_id: int, permission: str = Security(permission_check, scopes=['user:delete'])):
     if user_id == permission.id:
