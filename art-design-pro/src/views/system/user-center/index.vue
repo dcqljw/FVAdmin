@@ -7,7 +7,7 @@
           <img class="absolute top-0 left-0 w-full h-50 object-cover" src="@imgs/user/bg.webp" />
           <img
             class="relative z-10 w-20 h-20 mt-30 mx-auto object-cover border-2 border-white rounded-full"
-            src="@imgs/user/avatar.webp"
+            :src="userInfo.avatar"
           />
           <h2 class="mt-5 text-xl font-normal">{{ userInfo.username }}</h2>
           <p class="mt-5 text-sm">专注于用户体验跟视觉设计</p>

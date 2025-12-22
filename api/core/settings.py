@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     MYSQL_DB: str = ""
     SECRET_KEY: str = ""
     ALGORITHM: str = ""
+    OSS_URL: str = ""
+    OSS_KEY: str = ""
+    OSS_SECRET: str = ""
+    OSS_BUCKET: str = ""
 
 
 settings = Settings()

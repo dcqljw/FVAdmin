@@ -1,12 +1,15 @@
+import os.path
 import random
 import string
 
-from fastapi import APIRouter, Depends, Security
+from fastapi import APIRouter, Depends, Security, UploadFile
 
 from core.security import get_password_hash, verify_password
+from core.settings import settings
 from models.menu_model import Menu
 from models.user_model import User, UserPydantic, UserPydanticList
 from models.role_model import Role, RolePydantic, RolePydanticList
+from oss_client import oss_client
 from router.deps import verify_token_dep, get_current_user, permission_check
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.user import UserCreateSchema, EditPasswordSchema
@@ -85,6 +88,20 @@ async def edit_profile(user_in: UserCreateSchema, current_user: User = Depends(g
         user.avatar = user_in.avatar
         await user.save()
         return SuccessResponse(data={"msg": "修改用户成功"})
+
+
+@router.post('/upload_avatar')
+async def upload_avatar(file: UploadFile, current_user: User = Depends(get_current_user)):
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        return ErrorResponse(msg="请上传图片")
+    if file.size > 1 * 1024 * 1024:
+        return ErrorResponse(msg="请上传1MB以内的文件")
+    file_ext = os.path.splitext(file.filename)[-1]
+    filename = oss_client.get_md5(file.file.read()) + f"{file_ext}"
+    oss_client.upload_file_by_stream(file.file, filename, extra_args={"ContentType": file.content_type})
+    current_user.avatar = f"{settings.OSS_URL}/{settings.OSS_BUCKET}/{filename}"
+    await current_user.save()
+    return SuccessResponse(data={"msg": "上传成功"})
 
 
 @router.post('/delete')
