@@ -26,6 +26,9 @@ class User(Model):
             ("username",),
         ]
 
+    class PydanticMeta:
+        pass
+
 
 UserPydantic = pydantic_model_creator(
     User,

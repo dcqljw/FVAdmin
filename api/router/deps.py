@@ -24,8 +24,11 @@ async def verify_token_dep(token: Optional[str] = Depends(API_KEY_HEADER)):
 
 
 async def get_current_user(uid: str = Depends(verify_token_dep)):
-    user = await User.get(id=uid)
-    return user
+    user = await User.get_or_none(id=uid)
+    if user:
+        return user
+    else:
+        raise HTTPException(status_code=401, detail="登录过期,请重新登录!")
 
 
 async def permission_check(security_scopes: SecurityScopes, user: User = Depends(get_current_user)) -> User:

@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from custom_exception import custom_exception_handler, CustomException
 from databases import register_mysql
+from init_core import init_data
 from core.settings import settings
 from router import auth_api, system_api, user_api, menu_api, role_api
 
@@ -15,6 +16,7 @@ from router import auth_api, system_api, user_api, menu_api, role_api
 async def lifespan(app: FastAPI):
     async with register_mysql(app):
         pass
+    # await init_data()
     yield
 
 
