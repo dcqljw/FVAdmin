@@ -16,7 +16,7 @@ from router import auth_api, system_api, user_api, menu_api, role_api
 async def lifespan(app: FastAPI):
     async with register_mysql(app):
         pass
-    # await init_data()
+    await init_data()
     yield
 
 
