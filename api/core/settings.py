@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     OSS_KEY: str = ""
     OSS_SECRET: str = ""
     OSS_BUCKET: str = ""
+    MODEL_API_KEY: str = ""
 
 
 settings = Settings()
