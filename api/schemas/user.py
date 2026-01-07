@@ -11,7 +11,7 @@ class UserLoginSchema(UserBase):
 
 
 class UserCreateSchema(UserBase):
-    nickname: str | None = None
+    nickname: str
     email: str | None = None
     phone: str | None = None
     avatar: str | None = None

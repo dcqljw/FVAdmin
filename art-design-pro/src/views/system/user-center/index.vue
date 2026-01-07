@@ -5,10 +5,18 @@
       <div class="w-112 mr-5 max-md:w-full max-md:mr-0">
         <div class="art-card-sm relative p-9 pb-6 overflow-hidden text-center">
           <img class="absolute top-0 left-0 w-full h-50 object-cover" src="@imgs/user/bg.webp" />
-          <img
-            class="relative z-10 w-20 h-20 mt-30 mx-auto object-cover border-2 border-white rounded-full"
-            :src="userInfo.avatar"
-          />
+          <el-upload
+            action="http://127.0.0.1:8000/api/user/upload_avatar"
+            :headers="{ authorization: `${userStore.accessToken}` }"
+            :beforeUpload="beforeAvatarUpload"
+            :show-file-list="false"
+          >
+            <img
+              class="relative z-10 w-20 h-20 mt-30 mx-auto object-cover border-2 border-white rounded-full"
+              :src="userInfo.avatar"
+            />
+          </el-upload>
+
           <h2 class="mt-5 text-xl font-normal">{{ userInfo.username }}</h2>
           <p class="mt-5 text-sm">专注于用户体验跟视觉设计</p>
 
@@ -220,5 +228,17 @@
         console.log(res)
       })
     }
+  }
+  const beforeAvatarUpload = (file: any) => {
+    const isJPG = file.type === 'image/jpeg'
+    const isLt2M = file.size / 1024 / 1024 < 1
+
+    if (!isJPG) {
+      ElMessage.error('上传头像图片只能是 JPG 格式!')
+    }
+    if (!isLt2M) {
+      ElMessage.error('上传头像图片大小不能超过 2MB!')
+    }
+    return isJPG && isLt2M
   }
 </script>
