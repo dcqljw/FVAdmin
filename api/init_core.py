@@ -5,24 +5,30 @@ from core.security import get_password_hash
 from models.menu_model import Menu
 from models.role_model import Role
 from models.user_model import User
+from core.log_config import app_logger
 
 
 async def create_superuser():
     user = await User.get_or_none(username="admin")
     if not user:
-        print("创建超级管理员")
+        app_logger.info("创建超级管理员")
         random_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
         password = "".join(random.choices(random_str, k=8))
-        print(f"密码：{password}")
+        app_logger.info(f"超级管理员初始密码：{password}")
         new_password = get_password_hash(password)
         await User.create(username="admin", password=new_password, nickname="管理员", phone="12345678901",
                           email="admin@admin.com", avatar='')
+        app_logger.info("超级管理员创建成功")
+    else:
+        app_logger.info("超级管理员已存在，跳过创建")
 
 
 async def create_menu():
     menus = await Menu.filter().all()
     if menus:
+        app_logger.info("菜单已存在，跳过创建")
         return
+    app_logger.info("开始创建系统菜单")
     # 创建父级菜单
     dashboard_menu = await Menu.create(
         parent_id=0, name="Dashboard", path="/dashboard",
@@ -117,14 +123,19 @@ async def create_menu():
 async def create_role():
     role = await Role.get_or_none(name="admin")
     if not role:
-        print("创建超级管理员角色")
+        app_logger.info("创建超级管理员角色")
         admin_role = await Role.create(name="admin", code="ADMIN", description="超级管理员", enabled=True)
         await admin_role.menus.add(*await Menu.all())
         user = await User.filter(username="admin").first()
         await user.roles.add(admin_role)
+        app_logger.info("超级管理员角色创建成功")
+    else:
+        app_logger.info("超级管理员角色已存在，跳过创建")
 
 
 async def init_data():
+    app_logger.info("开始初始化系统数据")
     await create_superuser()
     await create_menu()
     await create_role()
+    app_logger.info("系统数据初始化完成")

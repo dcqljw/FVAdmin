@@ -1,5 +1,3 @@
-import logging
-
 import aerich
 import os
 from pathlib import Path
@@ -10,6 +8,7 @@ from tortoise import Tortoise
 from tortoise.contrib.fastapi import RegisterTortoise
 
 from core.settings import settings
+from core.log_config import db_logger
 
 # ----------note------------
 # /etc/mysql/mysql.conf.d/mysqld.cnf
@@ -32,7 +31,6 @@ for root, folder, file in os.walk(models_dir):
             relative_path = Path(root).relative_to(models_dir.parent)
             module_path = str(relative_path / filename).replace(os.path.sep, '.')
             model_modules.append(module_path)
-            print(f"Found model: {module_path}")
 db_config = {
     'connections': {
         'default': {
@@ -61,9 +59,8 @@ db_config = {
 @asynccontextmanager
 async def register_mysql(app: FastAPI):
     try:
-        logging.basicConfig(level=logging.DEBUG)
-        logger = logging.getLogger('tortoise')
-        logger.setLevel(logging.DEBUG)
+        # 配置数据库日志
+        db_logger.info("开始连接数据库")
         async with (
             RegisterTortoise(
                 app,
@@ -71,6 +68,8 @@ async def register_mysql(app: FastAPI):
                 generate_schemas=False,
             )
         ):
+            db_logger.info("数据库连接成功")
             yield
     except Exception as e:
-        print(e)
+        db_logger.error(f"数据库连接失败: {str(e)}", exc_info=True)
+        raise

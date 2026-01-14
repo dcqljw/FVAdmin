@@ -9,15 +9,22 @@ from custom_exception import custom_exception_handler, CustomException
 from databases import register_mysql
 from init_core import init_data
 from core.settings import settings
+from core.log_config import setup_logging, app_logger
+from core.middleware import LoggingMiddleware
 from router import auth_api, system_api, user_api, menu_api, role_api
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    async with register_mysql(app):
-        pass
-    await init_data()
-    yield
+async def lifespan(_app: FastAPI):
+    # 初始化日志系统
+    setup_logging()
+    app_logger.info("应用启动")
+    
+    async with register_mysql(_app):
+        await init_data()
+        yield
+    
+    app_logger.info("应用关闭")
 
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan, root_path="/api")
@@ -29,6 +36,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 添加请求日志中间件
+app.add_middleware(LoggingMiddleware)
 
 app.add_exception_handler(CustomException, custom_exception_handler)
 

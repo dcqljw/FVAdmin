@@ -23,8 +23,8 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
         if parent_id not in parent_map:
             parent_map[parent_id] = {"menus": [], "buttons": []}
 
-        # 按类型分类存储（菜单/按钮）
-        if menu_type == 1:
+        # 按类型分类存储（菜单/按钮/目录）
+        if menu_type == 1 or menu_type == 3:
             parent_map[parent_id]["menus"].append(menu)
         elif menu_type == 2:
             parent_map[parent_id]["buttons"].append(menu)

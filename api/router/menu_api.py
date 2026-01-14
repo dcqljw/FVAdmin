@@ -9,6 +9,7 @@ from router.deps import verify_token_dep, permission_check, get_current_user
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.menu import MenuCreateSchema, AddRoleMenuSchema
 from models.menu_model import Menu, MenuPydanticList
+from core.log_config import api_logger
 
 router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
@@ -83,12 +84,15 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
 
 @router.post("/add")
 async def add_menu(menu: MenuCreateSchema, current_user: User = Security(permission_check, scopes=['menu:add'])):
+    api_logger.info(f"用户 {current_user.username} 尝试添加菜单 {menu.name}")
     await Menu.create(**menu.model_dump())
+    api_logger.info(f"用户 {current_user.username} 成功添加菜单 {menu.name}")
     return SuccessResponse(data={"message": "添加菜单成功"})
 
 
 @router.post("/edit")
 async def edit_menu(menu_in: MenuCreateSchema, current_user: User = Security(permission_check, scopes=['menu:edit'])):
+    api_logger.info(f"用户 {current_user.username} 尝试编辑菜单 {menu_in.name}")
     menu = await Menu.get_or_none(name=menu_in.name)
     if menu:
         if menu.type == 1:
@@ -104,8 +108,10 @@ async def edit_menu(menu_in: MenuCreateSchema, current_user: User = Security(per
             menu.meta = menu_in.meta
             menu.auth_mark = menu_in.auth_mark
             await menu.save()
+        api_logger.info(f"用户 {current_user.username} 成功编辑菜单 {menu_in.name}")
         return SuccessResponse(data={"message": "修改菜单成功"})
     else:
+        api_logger.warning(f"编辑菜单失败：菜单 {menu_in.name} 不存在")
         return ErrorResponse(msg="菜单不存在")
 
 
@@ -115,22 +121,26 @@ async def add_menu_permission(role_menu: AddRoleMenuSchema):
     角色添加菜单权限
     :return:
     """
-    print(*role_menu.menu_ids)
+    api_logger.info(f"为角色ID {role_menu.role_id} 添加菜单权限，菜单IDs: {role_menu.menu_ids}")
     data = await Role.get(id=role_menu.role_id)
     await data.menus.clear()
     menu_filter = await Menu.filter(id__in=role_menu.menu_ids)
     await data.menus.add(*menu_filter)
     # Role.menus.add()
+    api_logger.info(f"角色ID {role_menu.role_id} 菜单权限添加成功")
     return SuccessResponse(data={"message": "添加菜单成功"})
 
 
 @router.post("/delete")
 async def delete_menu(menu_id: int,
                       current_user: User = Security(permission_check, scopes=['menu:delete'])):
+    api_logger.info(f"用户 {current_user.username} 尝试删除菜单ID {menu_id}")
     menu = await Menu.get_or_none(id=menu_id)
     if menu.name == "Menus":
+        api_logger.warning(f"用户 {current_user.username} 尝试删除根菜单，操作被拒绝")
         return ErrorResponse(msg="不能删除根菜单")
     else:
         await Menu.filter(parent_id=menu_id).delete()
         await menu.delete()
+        api_logger.info(f"用户 {current_user.username} 成功删除菜单 {menu.name}")
         return SuccessResponse(data={"message": "删除菜单成功"})
