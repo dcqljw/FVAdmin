@@ -1,21 +1,26 @@
-import './assets/main.css'
-import 'virtual:uno.css'
-import {createApp} from 'vue'
-import {createPinia} from 'pinia'
-
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
-
-
 import App from './App.vue'
-import {initStore} from "./stores";
-import {initRouter} from './router'
+import { createApp } from 'vue'
+import { initStore } from './store'                 // Store
+import { initRouter } from './router'               // Router
+import language from './locales'                    // 国际化
+import '@styles/core/tailwind.css'                  // tailwind
+import '@styles/index.scss'                         // 样式
+import '@utils/sys/console.ts'                      // 控制台输出内容
+import '@utils/ui/iconify-loader'
+import { setupGlobDirectives } from './directives'
+import { setupErrorHandle } from '@utils/sys/error-handle'
+
+document.addEventListener(
+  'touchstart',
+  function () {},
+  { passive: false }
+)
 
 const app = createApp(App)
 initStore(app)
 initRouter(app)
-app.use(ElementPlus, {
-    locale: zhCn
-})
+setupGlobDirectives(app)
+setupErrorHandle(app)
+
+app.use(language)
 app.mount('#app')
