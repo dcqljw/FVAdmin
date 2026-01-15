@@ -1,5 +1,6 @@
 import asyncio
 import json
+import httpx
 from typing import List, Dict
 
 from fastmcp import Client
@@ -8,12 +9,22 @@ from openai import OpenAI
 from core.settings import settings
 
 
+class BearerTokenAuth(httpx.Auth):
+    def __init__(self, token: str):
+        self.token = token
+
+    def auth_flow(self, request):
+        request.headers["Authorization"] = f"{self.token}"
+        yield request
+
+
 class MCPPoweredAI:
     """让大模型能够调用MCP工具的AI代理"""
 
     def __init__(self, mcp_server_url: str, openai_api_key: str = None):
         # 初始化MCP客户端
-        self.mcp_client = Client(mcp_server_url)
+        auth = BearerTokenAuth(openai_api_key)
+        self.mcp_client = Client(mcp_server_url, auth=auth)
 
         # 初始化OpenAI客户端
         self.llm_client = OpenAI(
@@ -160,7 +171,7 @@ class MCPPoweredAI:
 
 async def main():
     mcp_server_url = "http://127.0.0.1:8001/sse"
-    ai_agent = await MCPPoweredAI(mcp_server_url).initialize()
+    ai_agent = await MCPPoweredAI(mcp_server_url, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjkwODUyNTQsInVpZCI6MX0.p_HgRLrXD1UXIqQEFstE1U-99coNVaysRkJcEh69B1c").initialize()
     await ai_agent.interactive_chat()
 
 

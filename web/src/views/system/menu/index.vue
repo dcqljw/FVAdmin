@@ -50,21 +50,16 @@
 </template>
 
 <script setup lang="ts">
-  import { formatMenuTitle } from '@/utils/router'
-  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import { useTableColumns } from '@/hooks/core/useTableColumns'
-  import type { AppRouteRecord } from '@/types/router'
-  import MenuDialog from './modules/menu-dialog.vue'
-  import {
-    fetchAddMenu,
-    fetchDeleteMenu,
-    fetchEditMenu,
-    fetchGetMenuList
-  } from '@/api/system-manage'
-  import { useAuth } from '@/hooks'
-  import { ElTag, ElMessageBox } from 'element-plus'
+import {formatMenuTitle} from '@/utils/router'
+import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+import {useTableColumns} from '@/hooks/core/useTableColumns'
+import type {AppRouteRecord} from '@/types/router'
+import MenuDialog from './modules/menu-dialog.vue'
+import {fetchAddMenu, fetchDeleteMenu, fetchEditMenu, fetchGetMenuList} from '@/api/system-manage'
+import {useAuth} from '@/hooks'
+import {ElMessageBox, ElTag} from 'element-plus'
 
-  defineOptions({ name: 'Menus' })
+defineOptions({ name: 'Menus' })
   const { hasAuth } = useAuth()
 
   // 状态管理
@@ -111,10 +106,8 @@
    */
   const getMenuList = async (): Promise<void> => {
     loading.value = true
-
     try {
-      const list = await fetchGetMenuList()
-      tableData.value = list
+      tableData.value = await fetchGetMenuList()
     } catch (error) {
       throw error instanceof Error ? error : new Error('获取菜单失败')
     } finally {

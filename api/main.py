@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 
 from fastapi import FastAPI
+from fastmcp import FastMCP
 from fastapi.middleware.cors import CORSMiddleware
 
 from custom_exception import custom_exception_handler, CustomException
@@ -19,11 +20,11 @@ async def lifespan(_app: FastAPI):
     # 初始化日志系统
     setup_logging()
     app_logger.info("应用启动")
-    
+
     async with register_mysql(_app):
         await init_data()
         yield
-    
+
     app_logger.info("应用关闭")
 
 
@@ -47,6 +48,20 @@ app.include_router(system_api.router)
 app.include_router(user_api.router)
 app.include_router(menu_api.router)
 app.include_router(role_api.router)
+
+# mcp = FastMCP.from_fastapi(app=app)
+# mcp_app = mcp.http_app("/mcp")
+#
+# print(app.user_middleware)
+# combined_app = FastAPI(
+#     routes=[
+#         *mcp_app.routes,
+#         *app.routes,
+#     ],
+#     middleware=app.user_middleware,
+#     lifespan=mcp_app.lifespan,
+# )
+# combined_app.add_middleware(LoggingMiddleware)
 
 if __name__ == "__main__":
     uvicorn.run(app)
