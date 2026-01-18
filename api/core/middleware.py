@@ -18,7 +18,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         
         # 记录请求信息
         request_method = request.method
-        request_url = str(request.url)
+        request_url_path = str(request.url.path)
         request_headers = dict(request.headers)
         request_client = request.client.host if request.client else "unknown"
         
@@ -40,7 +40,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         api_logger.info(
             f"API请求开始 - "
             f"方法: {request_method}, "
-            f"路径: {request_url}, "
+            f"路径: {request_url_path}, "
             f"客户端: {request_client}, "
             f"请求头: {json.dumps({k:v for k,v in request_headers.items() if k in ['user-agent', 'authorization', 'content-type']}, ensure_ascii=False)}"
         )

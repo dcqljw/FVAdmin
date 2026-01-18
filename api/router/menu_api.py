@@ -112,7 +112,7 @@ async def edit_menu(menu_in: MenuCreateSchema, current_user: User = Security(per
         return SuccessResponse(data={"message": "修改菜单成功"})
     else:
         api_logger.warning(f"编辑菜单失败：菜单 {menu_in.name} 不存在")
-        return ErrorResponse(msg="菜单不存在")
+        return ErrorResponse(message="菜单不存在")
 
 
 @router.post("/add_menu_permission")
@@ -138,7 +138,7 @@ async def delete_menu(menu_id: int,
     menu = await Menu.get_or_none(id=menu_id)
     if menu.name == "Menus":
         api_logger.warning(f"用户 {current_user.username} 尝试删除根菜单，操作被拒绝")
-        return ErrorResponse(msg="不能删除根菜单")
+        return ErrorResponse(message="不能删除根菜单")
     else:
         await Menu.filter(parent_id=menu_id).delete()
         await menu.delete()

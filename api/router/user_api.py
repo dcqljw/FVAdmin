@@ -59,7 +59,7 @@ async def add_user(user: UserCreateSchema, current_user: User = Security(permiss
     is_user = await User.get_or_none(username=user.username)
     if is_user:
         api_logger.warning(f"添加用户失败：用户名 {user.username} 已存在")
-        return ErrorResponse(msg="用户已存在")
+        return ErrorResponse(message="用户已存在")
     else:
         user.password = get_password_hash(user.password)
         role = await Role.filter(code__in=user.role)
@@ -86,7 +86,7 @@ async def edit_user(user_in: UserCreateSchema, current_user: User = Security(per
         return SuccessResponse(data={"msg": "修改用户成功"})
     else:
         api_logger.warning(f"编辑用户失败：用户 {user_in.username} 不存在")
-        return ErrorResponse(msg="用户不存在")
+        return ErrorResponse(message="用户不存在")
 
 
 @router.post('/edit-profile')
@@ -108,10 +108,10 @@ async def upload_avatar(file: UploadFile, current_user: User = Depends(get_curre
     api_logger.info(f"用户 {current_user.username} 尝试上传头像")
     if file.content_type not in ["image/jpeg", "image/png"]:
         api_logger.warning(f"用户 {current_user.username} 上传头像失败：文件类型不支持")
-        return ErrorResponse(msg="请上传图片")
+        return ErrorResponse(message="请上传图片")
     if file.size > 1 * 1024 * 1024:
         api_logger.warning(f"用户 {current_user.username} 上传头像失败：文件过大")
-        return ErrorResponse(msg="请上传1MB以内的文件")
+        return ErrorResponse(message="请上传1MB以内的文件")
     file_ext = os.path.splitext(file.filename)[-1]
     filename = oss_client.get_md5(file.file.read()) + f"{file_ext}"
     oss_client.upload_file_by_stream(file.file, filename, extra_args={"ContentType": file.content_type})
@@ -126,18 +126,18 @@ async def delete_user(user_id: int, current_user: User = Security(permission_che
     api_logger.info(f"用户 {current_user.username} 尝试删除用户ID {user_id}")
     if user_id == current_user.id:
         api_logger.warning(f"用户 {current_user.username} 尝试删除自己，操作被拒绝")
-        return ErrorResponse(msg="不能删除自己")
+        return ErrorResponse(message="不能删除自己")
     user = await User.get_or_none(id=user_id)
     if user.username == "admin":
         api_logger.warning(f"用户 {current_user.username} 尝试删除管理员账户，操作被拒绝")
-        return ErrorResponse(msg="超级管理员无法删除")
+        return ErrorResponse(message="超级管理员无法删除")
     if user:
         await user.delete()
         api_logger.info(f"用户 {current_user.username} 成功删除用户 {user.username}")
         return SuccessResponse(data={"msg": "删除用户成功"})
     else:
         api_logger.warning(f"删除用户失败：用户ID {user_id} 不存在")
-        return ErrorResponse(msg="用户不存在")
+        return ErrorResponse(message="用户不存在")
 
 
 @router.post('/edit-password')
@@ -153,10 +153,10 @@ async def edit_password(password_in: EditPasswordSchema, current_user: User = De
             return SuccessResponse(data={"msg": "修改密码成功"})
         else:
             api_logger.warning(f"用户 {current_user.username} 修改密码失败：原密码错误")
-            return ErrorResponse(msg="原密码错误")
+            return ErrorResponse(message="原密码错误")
     else:
         api_logger.error(f"修改密码异常：用户 {current_user.username} 数据不一致")
-        return ErrorResponse(msg="原密码错误")
+        return ErrorResponse(message="原密码错误")
 
 
 @router.post('/reset-password')
@@ -172,4 +172,4 @@ async def reset_password(user_id: int, current_user: User = Security(permission_
         return SuccessResponse(data={"new_password": new_password})
     else:
         api_logger.warning(f"重置密码失败：用户ID {user_id} 不存在")
-        return ErrorResponse(msg="用户不存在")
+        return ErrorResponse(message="用户不存在")

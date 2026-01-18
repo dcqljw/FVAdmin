@@ -22,7 +22,7 @@ async def login(user: UserLoginSchema):
             return SuccessResponse(data={"token": token, "refreshToken": token})
         else:
             auth_logger.warning(f"用户 {user.username} 密码错误")
-            return ErrorResponse(msg="账户或密码错误")
+            return ErrorResponse(message="账户或密码错误")
     else:
         auth_logger.warning(f"用户 {user.username} 不存在")
-        return ErrorResponse(msg="账户或密码错误")
+        return ErrorResponse(message="账户或密码错误")

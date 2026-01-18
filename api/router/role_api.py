@@ -37,7 +37,7 @@ async def add_role(role: RoleCreateSchema, current_user: User = Security(permiss
     is_role = await Role.filter(Q(name=role.name) | Q(code=role.code)).first()
     if is_role:
         api_logger.warning(f"添加角色失败：角色 {role.name} 或代码 {role.code} 已存在")
-        return ErrorResponse(msg="角色已存在")
+        return ErrorResponse(message="角色已存在")
     else:
         await Role.create(**role.model_dump())
         api_logger.info(f"用户 {current_user.username} 成功添加角色 {role.name}")
@@ -49,18 +49,18 @@ async def delete_role(role_id: int, current_user: User = Security(permission_che
     api_logger.info(f"用户 {current_user.username} 尝试删除角色ID {role_id}")
     if role_id == current_user.id:
         api_logger.warning(f"用户 {current_user.username} 尝试删除自己，操作被拒绝")
-        return ErrorResponse(msg="不能删除自己")
+        return ErrorResponse(message="不能删除自己")
     role = await Role.get_or_none(id=role_id)
     if role:
         if role.code == 'R_ADMIN':
             api_logger.warning(f"用户 {current_user.username} 尝试删除超级管理员角色，操作被拒绝")
-            return ErrorResponse(msg="超级管理员无法删除")
+            return ErrorResponse(message="超级管理员无法删除")
         await role.delete()
         api_logger.info(f"用户 {current_user.username} 成功删除角色 {role.name}")
         return SuccessResponse(data={"msg": "删除角色成功"})
     else:
         api_logger.warning(f"删除角色失败：角色ID {role_id} 不存在")
-        return ErrorResponse(msg="角色不存在")
+        return ErrorResponse(message="角色不存在")
 
 
 @router.post('/edit')
@@ -76,4 +76,4 @@ async def edit_role(role_in: RoleCreateSchema, current_user: User = Security(per
         return SuccessResponse(data={"msg": "修改角色成功"})
     else:
         api_logger.warning(f"编辑角色失败：角色代码 {role_in.code} 不存在")
-        return ErrorResponse(msg="角色不存在")
+        return ErrorResponse(message="角色不存在")
