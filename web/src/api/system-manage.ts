@@ -45,20 +45,20 @@ export function fetchSetMenuByRole(roleId: number | undefined, menuIds: number[]
 }
 
 // 新增用户
-export function fetchAddUser(fromData: any) {
+export function fetchAddUser(formData: any) {
   return request.post<any>({
     url: '/api/user/add',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
 // 修改用户
-export function fetchUpdateUser(fromData: any) {
+export function fetchUpdateUser(formData: any) {
   return request.post<any>({
     url: '/api/user/edit',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
@@ -75,11 +75,11 @@ export function fetchResetPassword(id: number) {
   })
 }
 // 新增角色
-export function fetchAddRole(fromData: any) {
+export function fetchAddRole(formData: any) {
   return request.post<any>({
     url: '/api/role/add',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
@@ -90,28 +90,28 @@ export function fetchDeleteRole(id: number) {
   })
 }
 // 编辑角色
-export function fetchEditRole(fromData: any) {
+export function fetchEditRole(formData: any) {
   return request.post<any>({
     url: '/api/role/edit',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
 // 添加菜单
-export function fetchAddMenu(fromData: any) {
+export function fetchAddMenu(formData: any) {
   return request.post<any>({
     url: '/api/menu/add',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
-export function fetchEditMenu(fromData: any) {
+export function fetchEditMenu(formData: any) {
   return request.post<any>({
     url: '/api/menu/edit',
     data: {
-      ...fromData
+      ...formData
     }
   })
 }
@@ -119,5 +119,14 @@ export function fetchEditMenu(fromData: any) {
 export function fetchDeleteMenu(id: number) {
   return request.post<any>({
     url: `/api/menu/delete?menu_id=${id}`
+  })
+}
+
+export function fetchAiEdit(formData: any) {
+  return request.post<any>({
+    url: `/api/ai/add`,
+    data: {
+      ...formData
+    }
   })
 }

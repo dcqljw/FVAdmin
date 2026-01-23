@@ -11,14 +11,14 @@ dependencies = [
     "boto3-stubs~=1.42.14",
     "cryptography>=46.0.3",
     "fastapi>=0.121.3",
-    "fastmcp>=2.14.2",
+    "fastmcp>=2.14.3",
     "openai>=2.14.0",
     "passlib>=1.7.4",
     "pydantic-settings>=2.12.0",
     "pyjwt>=2.10.1",
     "python-multipart>=0.0.21",
-    "tortoise-orm[aiomysql]>=0.25.1",
-    "uvicorn>=0.38.0",
+    "tortoise-orm[aiomysql]>=0.25.3",
+    "uvicorn>=0.40.0",
 ]
 [[tool.uv.index]]
 url = "https://mirrors.aliyun.com/pypi/simple/"

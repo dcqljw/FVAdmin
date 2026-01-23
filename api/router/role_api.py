@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Security
 from tortoise.expressions import Q
 
 from models.user_model import User
-from models.role_model import Role, RolePydanticList
+from models.role_model import Role, RolePydanticList, RoleListResponse, RoleResponse
 from router.deps import permission_check
 from schemas.response import SuccessResponse, ErrorResponse
 from schemas.role import RoleCreateSchema
@@ -18,7 +18,8 @@ async def get_role_list(current: int = 1,
                         code: str = None,
                         description: str = None
                         ):
-    api_logger.info(f"查询角色列表，参数：page={current}, size={size}, name={name}, code={code}, description={description}")
+    api_logger.info(
+        f"查询角色列表，参数：page={current}, size={size}, name={name}, code={code}, description={description}")
     query = Role.all()
     if name:
         query = query.filter(name__contains=name)
@@ -27,8 +28,9 @@ async def get_role_list(current: int = 1,
     if description:
         query = query.filter(description__contains=description)
     roles = await query.offset((current - 1) * size).limit(size).all()
+    role_response = [RoleResponse.model_validate(role) for role in roles]
     api_logger.info(f"查询角色列表成功，返回 {len(roles)} 条记录")
-    return SuccessResponse(data=RolePydanticList(roles))
+    return SuccessResponse(data=RoleListResponse(data=role_response))
 
 
 @router.post("/add")

@@ -12,7 +12,7 @@ from init_core import init_data
 from core.settings import settings
 from core.log_config import setup_logging, app_logger
 from core.middleware import LoggingMiddleware
-from router import auth_api, system_api, user_api, menu_api, role_api
+from router import auth_api, system_api, user_api, menu_api, role_api, ai_api
 
 
 @asynccontextmanager
@@ -48,6 +48,7 @@ app.include_router(system_api.router)
 app.include_router(user_api.router)
 app.include_router(menu_api.router)
 app.include_router(role_api.router)
+app.include_router(ai_api.router)
 
 # mcp = FastMCP.from_fastapi(app=app)
 # mcp_app = mcp.http_app("/mcp")

@@ -2,5 +2,6 @@ from pydantic import BaseModel
 
 
 class ApiKeyCreateSchema(BaseModel):
+    baseUrl: str
     name: str
-    key: str
+    apiKey: str

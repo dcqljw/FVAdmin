@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Security, UploadFile
 from core.security import get_password_hash, verify_password
 from core.settings import settings
 from models.menu_model import Menu
-from models.user_model import User, UserPydantic, UserPydanticList
+from models.user_model import User, UserPydantic, UserPydanticList, UserResponse
 from models.role_model import Role, RolePydantic, RolePydanticList
 from oss_client import oss_client
 from router.deps import verify_token_dep, get_current_user, permission_check
@@ -22,8 +22,8 @@ router = APIRouter(prefix="/user", tags=["用户管理"])
 @router.get("/info")
 async def get_user_info(user: User = Depends(get_current_user)):
     api_logger.info(f"用户 {user.username} 查询个人信息")
-    user_data = await UserPydantic.from_tortoise_orm(user)
-    user_dict = user_data.model_dump(mode="json", exclude={"password"})
+    user_data = UserResponse.model_validate(user)
+    user_dict = user_data.model_dump(mode="json")
     api_logger.info(f"用户 {user.username} 查询个人信息成功")
     return SuccessResponse(data=user_dict)
 
@@ -36,7 +36,8 @@ async def get_user(user: User = Depends(get_current_user),
                    phone: str = None,
                    email: str = None,
                    ):
-    api_logger.info(f"用户 {user.username} 查询用户列表，参数：page={current}, size={size}, username={username}, phone={phone}, email={email}")
+    api_logger.info(
+        f"用户 {user.username} 查询用户列表，参数：page={current}, size={size}, username={username}, phone={phone}, email={email}")
     query = User.all()
     if username:
         query = query.filter(username__contains=username)

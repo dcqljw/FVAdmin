@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Optional
 
 from tortoise import fields
 from tortoise.models import Model
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
-from pydantic import ConfigDict
+from pydantic import ConfigDict, field_serializer
 
 
 class Menu(Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(primary_key=True)
     parent_id = fields.IntField(default=0, description="父级id")
     name = fields.CharField(max_length=255, description="菜单名称|按钮名称")
     type = fields.IntField(default=1, description="类型 1菜单2按钮")
@@ -27,8 +28,5 @@ class Menu(Model):
 MenuPydantic = pydantic_model_creator(
     Menu,
     name="Menu",
-    model_config=ConfigDict(
-        json_encoders={datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S")}
-    )
 )
 MenuPydanticList = pydantic_queryset_creator(Menu, name="MenuList")

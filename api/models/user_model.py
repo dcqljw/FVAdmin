@@ -1,14 +1,14 @@
-from datetime import datetime
-from typing import List
+from datetime import datetime, date
+from typing import List, Optional
 
 from tortoise import fields
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 from tortoise.models import Model
-from pydantic import ConfigDict, BaseModel
+from pydantic import ConfigDict, BaseModel, field_serializer
 
 
 class User(Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(primary_key=True)
     username = fields.CharField(max_length=255, unique=True, description="用户名")
     nickname = fields.CharField(max_length=255, description="昵称")
     password = fields.CharField(max_length=255, description="密码")
@@ -26,28 +26,22 @@ class User(Model):
             ("username",),
         ]
 
-    class PydanticMeta:
-        pass
-
 
 UserPydantic = pydantic_model_creator(
     User,
     name="User",
-    exclude=("password",),
-    model_config=ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-    )
+    exclude=("password",)
 )
 
 
-# UserPydanticList = pydantic_queryset_creator(User, exclude=("password",))
+class UserResponse(UserPydantic):
+    # 使用 field_serializer 处理 datetime 字段
+    @field_serializer("created_at", "updated_at")
+    def serialize_datetime(self, value: Optional[datetime], _info):
+        if value is None:
+            return None
+        return value.strftime("%Y-%m-%d %H:%M:%S")
+
 
 class UserPydanticList(BaseModel):
-    root: List[UserPydantic]
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.strftime("%Y-%m-%d %H:%M:%S"),
-        }
-    )
+    root: List[UserResponse]
