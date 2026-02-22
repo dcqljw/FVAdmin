@@ -131,5 +131,13 @@ declare namespace Api {
       Pick<RoleListItem, 'id' | 'name' | 'code' | 'description' | 'enabled'> &
         Api.Common.CommonSearchParams
     >
+    type LLMList = Api.Common.PaginatedResponse<LLMListItem>
+    interface LLMListItem {
+      id: number
+      name: string
+      api_key: string
+      base_url: string
+      model: string
+    }
   }
 }

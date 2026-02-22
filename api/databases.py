@@ -4,7 +4,6 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from tortoise import Tortoise
 from tortoise.contrib.fastapi import RegisterTortoise
 
 from core.settings import settings
@@ -34,7 +33,7 @@ for root, folder, file in os.walk(models_dir):
 db_config = {
     'connections': {
         'default': {
-            'engine': 'tortoise.backends.mysql',
+            'engine': 'tortoise.backends.asyncpg',
             'credentials': {
                 'host': settings.MYSQL_HOST,
                 'port': settings.MYSQL_PORT,
