@@ -18,13 +18,12 @@ router = APIRouter(prefix="/menu", tags=["菜单管理"])
 async def menu_list(current_user: User = Depends(get_current_user)):
     all_menu = []
     if current_user.username == "admin":
-        all_menu.extend(await Menu.filter().all())
+        all_menu.extend(await Menu.filter().order_by('-sort').all())
     else:
         data = await current_user.roles.all()
         for j in data:
-            menu = await j.menus
+            menu = await j.menus.order_by('-sort')
             all_menu.extend(menu)
-    # menu_orm = await Menu.all()
     pydantic_list = MenuPydanticList(all_menu).model_dump(mode='json')
     tree = convert_menu_to_tree(pydantic_list)
     return SuccessResponse(data=tree)

@@ -29,6 +29,11 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
         elif menu_type == 2:
             parent_map[parent_id]["buttons"].append(menu)
 
+    # 对每个父级下的菜单和按钮按 sort 降序排序（最大的在最上面）
+    for parent_id in parent_map:
+        parent_map[parent_id]["menus"].sort(key=lambda x: x.get("sort", 0), reverse=True)
+        parent_map[parent_id]["buttons"].sort(key=lambda x: x.get("sort", 0), reverse=True)
+
     # 2. 递归构建树形结构（核心逻辑）
     def build_tree(current_parent_id: int) -> list[dict]:
         """递归生成菜单树，按钮挂载到父菜单的 meta.authList"""

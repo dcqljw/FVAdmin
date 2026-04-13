@@ -33,7 +33,7 @@ for root, folder, file in os.walk(models_dir):
 db_config = {
     'connections': {
         'default': {
-            'engine': 'tortoise.backends.asyncpg',
+            'engine': 'tortoise.backends.mysql',
             'credentials': {
                 'host': settings.MYSQL_HOST,
                 'port': settings.MYSQL_PORT,
