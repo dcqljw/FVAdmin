@@ -130,8 +130,3 @@ export function fetchAiEdit(formData: any) {
     }
   })
 }
-export function fetchLLMList() {
-  return request.get<Api.SystemManage.LLMList>({
-    url: '/api/ai/list'
-  })
-}
