@@ -36,3 +36,12 @@ export function fetchEditPassword(fromData: any) {
     }
   })
 }
+
+/**
+ * 退出登录
+ */
+export function fetchLogout() {
+  return request.post<any>({
+    url: '/api/auth/logout'
+  })
+}

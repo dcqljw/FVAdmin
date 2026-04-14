@@ -4,6 +4,7 @@ from fastapi import Depends, Header, Request, Security
 from fastapi.security import APIKeyHeader, SecurityScopes
 from fastapi.exceptions import HTTPException
 
+from core.redis_client import redis_cache
 from core.security import verify_token
 from custom_exception import CustomException
 from models.user_model import User
@@ -19,7 +20,13 @@ API_KEY_HEADER = APIKeyHeader(
 async def verify_token_dep(token: Optional[str] = Depends(API_KEY_HEADER)):
     payload = verify_token(token)
     if payload:
-        return payload.get("uid", '')
+        uid = payload.get("uid", "")
+        # 单点登录校验：检查 Redis 中是否有对应的 token
+        token_key = f"user_token:{uid}"
+        stored_token = await redis_cache.get(token_key)
+        if not stored_token or stored_token != token:
+            raise HTTPException(status_code=401, detail="登录过期,请重新登录!")
+        return uid
     raise HTTPException(status_code=401, detail="登录过期,请重新登录!")
 
 

@@ -42,6 +42,7 @@ import { setPageTitle } from '@/utils/router'
 import { resetRouterState } from '@/router/guards/beforeEach'
 import { useMenuStore } from './menu'
 import { StorageConfig } from '@/utils/storage/storage-config'
+import { fetchLogout } from '@/api/auth'
 
 /**
  * 用户状态管理
@@ -140,11 +141,17 @@ export const useUserStore = defineStore(
      * 清空所有用户相关状态并跳转到登录页
      * 如果是同一账号重新登录，保留工作台标签页
      */
-    const logOut = () => {
+    const logOut = async () => {
       // 保存当前用户 ID，用于下次登录时判断是否为同一用户
       const currentUserId = info.value.userId
       if (currentUserId) {
         localStorage.setItem(StorageConfig.LAST_USER_ID_KEY, String(currentUserId))
+      }
+      // 调用后端退出登录接口
+      try {
+        await fetchLogout()
+      } catch (error) {
+        console.error('退出登录接口调用失败:', error)
       }
       // 清空work tab
       const worktabStore = useWorktabStore()
