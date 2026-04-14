@@ -132,4 +132,33 @@ declare namespace Api {
         Api.Common.CommonSearchParams
     >
   }
+
+  /** 操作日志类型 */
+  namespace OperationLog {
+    /** 操作日志列表 */
+    type OperationLogList = Api.Common.PaginatedResponse<OperationLogItem>
+
+    /** 操作日志项 */
+    interface OperationLogItem {
+      id: number
+      user_id: string
+      username: string
+      module: string
+      operation: string
+      method: string
+      path: string
+      ip: string
+      status_code: number
+      cost_time: number
+      created_at: string
+    }
+
+    /** 操作日志搜索参数 */
+    type OperationLogSearchParams = Partial<
+      Pick<OperationLogItem, 'username' | 'module' | 'operation'> & {
+        start_time: string
+        end_time: string
+      } & Api.Common.CommonSearchParams
+    >
+  }
 }

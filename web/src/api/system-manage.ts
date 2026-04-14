@@ -122,6 +122,14 @@ export function fetchDeleteMenu(id: number) {
   })
 }
 
+// 获取操作日志列表
+export function fetchGetOperationLogList(params: Api.OperationLog.OperationLogSearchParams) {
+  return request.get<Api.OperationLog.OperationLogList>({
+    url: '/api/operation-log/list',
+    params
+  })
+}
+
 export function fetchAiEdit(formData: any) {
   return request.post<any>({
     url: `/api/ai/add`,

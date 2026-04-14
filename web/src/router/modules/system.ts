@@ -55,6 +55,16 @@ export const systemRoutes: AppRouteRecord = {
           { title: '删除', authMark: 'delete' }
         ]
       }
+    },
+    {
+      path: 'operation-log',
+      name: 'OperationLog',
+      component: '/system/operation-log',
+      meta: {
+        title: 'menus.system.operationLog',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
     }
   ]
 }
