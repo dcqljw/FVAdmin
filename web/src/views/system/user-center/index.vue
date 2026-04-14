@@ -11,10 +11,15 @@
             :beforeUpload="beforeAvatarUpload"
             :show-file-list="false"
           >
-            <img
-              class="relative z-10 w-20 h-20 mt-30 mx-auto object-cover border-2 border-white rounded-full"
-              :src="userInfo.avatar"
-            />
+            <div
+              class="relative z-10 w-20 h-20 mt-30 mx-auto border-2 border-white rounded-full overflow-hidden cursor-pointer"
+            >
+              <ArtAvatar
+                :src="userInfo.avatar"
+                :name="userInfo.username"
+                :size="80"
+              />
+            </div>
           </el-upload>
 
           <h2 class="mt-5 text-xl font-normal">{{ userInfo.username }}</h2>

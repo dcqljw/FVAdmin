@@ -170,10 +170,31 @@ async function handleRouteGuard(
 
   // 3. 处理动态路由注册
   if (!routeRegistry?.isRegistered() && userStore.isLogin) {
-    // 防止并发请求（快速连续导航场景）
+    // 预加载正在进行中，等待完成后再导航
     if (routeInitInProgress) {
-      // 正在初始化中，等待完成后重新导航
-      next(false)
+      const startTime = Date.now()
+      const MAX_WAIT = 5000 // 最多等待 5 秒
+
+      while (routeInitInProgress && Date.now() - startTime < MAX_WAIT) {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+
+      // 等待完成后重新检查状态
+      if (routeRegistry?.isRegistered()) {
+        // 路由已注册好，重新导航到目标路径
+        router.push({
+          path: to.path,
+          query: to.query,
+          hash: to.hash,
+          replace: true
+        })
+        return
+      }
+
+      // 等待超时或初始化失败，走兜底逻辑
+      if (!routeInitFailed) {
+        await handleDynamicRoutes(to, next, router)
+      }
       return
     }
     await handleDynamicRoutes(to, next, router)
@@ -245,19 +266,21 @@ function isStaticRoute(path: string): boolean {
 }
 
 /**
- * 处理动态路由注册
+ * 初始化动态路由（获取用户信息 + 获取菜单 + 注册路由）
+ * 可被登录组件主动调用以预加载路由，也可由路由守卫兜底
+ * @param router Router 实例
  */
-async function handleDynamicRoutes(
-  to: RouteLocationNormalized,
-  next: NavigationGuardNext,
-  router: Router
-): Promise<void> {
-  // 标记初始化进行中
-  routeInitInProgress = true
+export async function initDynamicRoutes(router: Router): Promise<void> {
+  // 防止并发请求（快速连续调用场景）
+  if (routeInitInProgress) {
+    return
+  }
+  // 如果已经注册过了，无需重复
+  if (routeRegistry?.isRegistered()) {
+    return
+  }
 
-  // 显示 loading
-  pendingLoading = true
-  loadingService.showLoading()
+  routeInitInProgress = true
 
   try {
     // 1. 获取用户信息
@@ -284,27 +307,62 @@ async function handleDynamicRoutes(
 
     // 7. 验证工作标签页
     useWorktabStore().validateWorktabs(router)
+  } catch (error) {
+    console.error('[RouteGuard] 动态路由注册失败:', error)
 
-    // 8. 验证目标路径权限
+    // 401 错误：axios 拦截器已处理退出登录，允许重新登录后再次初始化
+    if (isUnauthorizedError(error)) {
+      routeInitInProgress = false
+      routeInitFailed = false
+      return
+    }
+
+    // 标记初始化失败，防止死循环
+    routeInitFailed = true
+    routeInitInProgress = false
+
+    // 输出详细错误信息，便于排查
+    if (isHttpError(error)) {
+      console.error(`[RouteGuard] 错误码: ${error.code}, 消息: ${error.message}`)
+    }
+
+    throw error
+  }
+
+  // 初始化成功，重置进行中标记
+  routeInitInProgress = false
+}
+
+/**
+ * 处理动态路由注册（路由守卫内部调用，带 loading UI）
+ */
+async function handleDynamicRoutes(
+  to: RouteLocationNormalized,
+  next: NavigationGuardNext,
+  router: Router
+): Promise<void> {
+  // 显示 loading
+  pendingLoading = true
+  loadingService.showLoading()
+
+  try {
+    await initDynamicRoutes(router)
+
+    // 验证目标路径权限
     const { homePath } = useCommon()
+    const menuStore = useMenuStore()
     const { path: validatedPath, hasPermission } = RoutePermissionValidator.validatePath(
       to.path,
-      menuList,
+      menuStore.menuList,
       homePath.value || '/'
     )
 
-    // 初始化成功，重置进行中标记
-    routeInitInProgress = false
+    // 关闭 loading
+    closeLoading()
 
-    // 9. 重新导航到目标路由
     if (!hasPermission) {
       // 无权限访问，跳转到首页
-      closeLoading()
-
-      // 输出警告信息
       console.warn(`[RouteGuard] 用户无权限访问路径: ${to.path}，已跳转到首页`)
-
-      // 直接跳转到首页
       next({
         path: validatedPath,
         replace: true
@@ -323,23 +381,6 @@ async function handleDynamicRoutes(
 
     // 关闭 loading
     closeLoading()
-
-    // 401 错误：axios 拦截器已处理退出登录，取消当前导航
-    if (isUnauthorizedError(error)) {
-      // 重置状态，允许重新登录后再次初始化
-      routeInitInProgress = false
-      next(false)
-      return
-    }
-
-    // 标记初始化失败，防止死循环
-    routeInitFailed = true
-    routeInitInProgress = false
-
-    // 输出详细错误信息，便于排查
-    if (isHttpError(error)) {
-      console.error(`[RouteGuard] 错误码: ${error.code}, 消息: ${error.message}`)
-    }
 
     // 跳转到 500 页面，使用 replace 避免产生历史记录
     next({ name: 'Exception500', replace: true })
