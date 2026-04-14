@@ -12,7 +12,7 @@ from core.settings import settings
 from core.log_config import setup_logging, app_logger
 from core.middleware import LoggingMiddleware
 from core.redis_client import redis_cache
-from router import auth_api, system_api, user_api, menu_api, role_api
+from router import auth_api, system_api, user_api, menu_api, role_api, operation_log_api
 
 
 @asynccontextmanager
@@ -48,6 +48,7 @@ app.include_router(system_api.router)
 app.include_router(user_api.router)
 app.include_router(menu_api.router)
 app.include_router(role_api.router)
+app.include_router(operation_log_api.router)
 
 if __name__ == "__main__":
     uvicorn.run(app)
