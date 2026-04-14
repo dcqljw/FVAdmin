@@ -11,7 +11,7 @@ from init_core import init_data
 from core.settings import settings
 from core.log_config import setup_logging, app_logger
 from core.middleware import LoggingMiddleware
-from core.cache import redis_cache
+from core.redis_client import redis_cache
 from router import auth_api, system_api, user_api, menu_api, role_api
 
 
