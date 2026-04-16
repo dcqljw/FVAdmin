@@ -94,6 +94,7 @@
     authLabel: string
     authIcon: string
     authSort: number
+    parent_id: number
   }
 
   interface Props {
@@ -144,7 +145,8 @@
     authName: '',
     authLabel: '',
     authIcon: '',
-    authSort: 1
+    authSort: 1,
+    parent_id: 0
   })
 
   const rules = reactive<FormRules>({

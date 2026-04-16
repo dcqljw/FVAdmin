@@ -50,16 +50,21 @@
 </template>
 
 <script setup lang="ts">
-import {formatMenuTitle} from '@/utils/router'
-import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-import {useTableColumns} from '@/hooks/core/useTableColumns'
-import type {AppRouteRecord} from '@/types/router'
-import MenuDialog from './modules/menu-dialog.vue'
-import {fetchAddMenu, fetchDeleteMenu, fetchEditMenu, fetchGetMenuList} from '@/api/system-manage'
-import {useAuth} from '@/hooks'
-import {ElMessageBox, ElTag} from 'element-plus'
+  import { formatMenuTitle } from '@/utils/router'
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import { useTableColumns } from '@/hooks/core/useTableColumns'
+  import type { AppRouteRecord } from '@/types/router'
+  import MenuDialog from './modules/menu-dialog.vue'
+  import {
+    fetchAddMenu,
+    fetchDeleteMenu,
+    fetchEditMenu,
+    fetchGetMenuList
+  } from '@/api/system-manage'
+  import { useAuth } from '@/hooks'
+  import { ElMessageBox, ElTag } from 'element-plus'
 
-defineOptions({ name: 'Menus' })
+  defineOptions({ name: 'Menus' })
   const { hasAuth } = useAuth()
 
   // 状态管理
@@ -289,19 +294,17 @@ defineOptions({ name: 'Menus' })
       }
 
       if (item.meta?.authList?.length) {
-        const authChildren: AppRouteRecord[] = item.meta.authList.map(
-          (auth: { title: string; authMark: string }) => ({
-            id: auth.id,
-            path: `${item.path}_auth_${auth.authMark}`,
-            name: `${String(item.name)}_auth_${auth.authMark}`,
-            meta: {
-              title: auth.title,
-              authMark: auth.authMark,
-              isAuthButton: true,
-              parentPath: item.path
-            }
-          })
-        )
+        const authChildren: AppRouteRecord[] = item.meta.authList.map((auth) => ({
+          id: auth.id,
+          path: `${item.path}_auth_${auth.authMark}`,
+          name: `${String(item.name)}_auth_${auth.authMark}`,
+          meta: {
+            title: auth.title,
+            authMark: auth.authMark,
+            isAuthButton: true,
+            parentPath: item.path
+          }
+        }))
 
         clonedItem.children = clonedItem.children?.length
           ? [...clonedItem.children, ...authChildren]
@@ -414,7 +417,7 @@ defineOptions({ name: 'Menus' })
    * 提交表单数据
    * @param formData 表单数据
    */
-  const handleSubmit = async (formData: MenuFormData): void => {
+  const handleSubmit = async (formData: MenuFormData): Promise<void> => {
     console.log('提交数据:', formData)
     const form = {
       parent_id: formData.id,
@@ -422,7 +425,8 @@ defineOptions({ name: 'Menus' })
       path: formData.path || '',
       meta: {
         title: formData.menuType === 'menu' ? formData.name || '' : formData.authName,
-        icon: formData.icon || ''
+        icon: formData.icon || '',
+        isHide: formData.isHide
       },
       component: formData.component || '',
       sort: formData.sort || 1,
