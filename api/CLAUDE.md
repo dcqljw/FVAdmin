@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-FVAdmin API is a FastAPI-based admin backend with RBAC permissions, Redis caching, and MCP server integration for AI tools.
+FVAdmin API is a FastAPI-based admin backend with RBAC permissions and Redis caching.
 
 ## Commands
 
@@ -20,9 +20,6 @@ uv run aerich migrate --name "description"  # Create migration
 uv run aerich upgrade                        # Apply migrations
 uv run aerich downgrade                      # Rollback migration
 uv run aerich history                        # View migration history
-
-# MCP server (runs on port 8001)
-uv run python mcp_server/mcp_main.py
 ```
 
 ## Architecture
@@ -68,11 +65,6 @@ All endpoints return `SuccessResponse` or `ErrorResponse`:
 {"code": 500, "message": "操作失败", "data": null}
 ```
 
-### MCP Server (`mcp_server/`)
-- `mcp_main.py` - FastMCP server exposing API as tools via OpenAPI spec
-- Runs on SSE transport, port 8001
-- Connects to main API at localhost:8000
-
 ## Key Configuration
 
 Environment variables loaded from `.env` and `.env.dev`:
@@ -80,7 +72,6 @@ Environment variables loaded from `.env` and `.env.dev`:
 - Redis: `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`, `REDIS_DB`, `REDIS_ENABLED`
 - JWT: `SECRET_KEY`, `ALGORITHM`
 - OSS/S3: `OSS_URL`, `OSS_KEY`, `OSS_SECRET`, `OSS_BUCKET`
-- AI: `MODEL_API_KEY`
 - Cache TTL: `CACHE_PERMISSION_TTL`, `CACHE_MENU_TTL`
 
 ## Bootstrap (`init_core.py`)
