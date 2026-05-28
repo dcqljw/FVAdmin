@@ -38,7 +38,16 @@
   defineOptions({ name: 'FlowList' })
 
   // 模拟工作流列表数据（写死）
-  const mockFlowList = [
+  interface FlowItem {
+    id: string
+    name: string
+    desc: string
+    type: string
+    updateTime: string
+    status: string
+  }
+
+  const mockFlowList: FlowItem[] = [
     {
       id: 'default',
       name: 'test',
@@ -74,7 +83,7 @@
           label: '资源',
           minWidth: 200,
           visible: true,
-          formatter: (row) => {
+          formatter: (row: FlowItem) => {
             return h('div', { style: 'min-width: 0' }, [
               h('div', { style: 'display: flex; align-items: center; gap: 4px' }, [
                 h('span', { style: 'font-size: 14px; font-weight: 500; color: #333' }, row.name),
@@ -111,7 +120,7 @@
           label: '操作',
           width: 80,
           visible: true,
-          formatter: (row) => {
+          formatter: (row: FlowItem) => {
             return h(
               ElDropdown,
               {

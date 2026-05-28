@@ -233,8 +233,8 @@
    * @param nodes 节点列表
    * @returns 所有节点的 key 数组
    */
-  const getAllNodeKeys = (nodes: MenuNode[]): string[] => {
-    const keys: string[] = []
+  const getAllNodeKeys = (nodes: MenuNode[]): (string | number)[] => {
+    const keys: (string | number)[] = []
     const traverse = (nodeList: MenuNode[]): void => {
       nodeList.forEach((node) => {
         if (node.id) keys.push(node.id)

@@ -120,7 +120,7 @@
     console.log('roleList', roleList.value)
     if (!roleList.value) {
       fetchGetRoleList({}).then((res) => {
-        roleList.value = res
+        roleList.value = res.records
       })
     }
     const isEdit = props.type === 'edit' && props.userData

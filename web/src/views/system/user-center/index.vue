@@ -141,9 +141,9 @@
    */
   const form = reactive({
     username: userInfo.value.username,
-    nikeName: userInfo.value.nickname,
+    nikeName: '',
     email: userInfo.value.email,
-    phone: userInfo.value.phone
+    phone: ''
   })
 
   /**

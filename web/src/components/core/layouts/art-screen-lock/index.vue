@@ -24,10 +24,10 @@
           <ArtAvatar
             class="w-16 h-16 rounded-full"
             :src="''"
-            :name="userInfo.username || userInfo.userName"
+            :name="userInfo.username"
             :size="64"
           />
-          <div class="mt-7.5 mb-3.5 text-base font-medium">{{ userInfo.userName }}</div>
+          <div class="mt-7.5 mb-3.5 text-base font-medium">{{ userInfo.username }}</div>
           <ElForm
             ref="formRef"
             :model="formData"
@@ -67,11 +67,11 @@
         <ArtAvatar
           class="w-16 h-16 mt-5 rounded-full"
           :src="''"
-          :name="userInfo.username || userInfo.userName"
+          :name="userInfo.username"
           :size="64"
         />
         <div class="mt-3 mb-3.5 text-base font-medium">
-          {{ userInfo.userName }}
+          {{ userInfo.username }}
         </div>
         <ElForm
           ref="unlockFormRef"

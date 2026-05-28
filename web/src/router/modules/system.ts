@@ -50,9 +50,9 @@ export const systemRoutes: AppRouteRecord = {
         keepAlive: true,
         roles: ['R_SUPER'],
         authList: [
-          { title: '新增', authMark: 'add' },
-          { title: '编辑', authMark: 'edit' },
-          { title: '删除', authMark: 'delete' }
+          { id: 1, title: '新增', authMark: 'add' },
+          { id: 2, title: '编辑', authMark: 'edit' },
+          { id: 3, title: '删除', authMark: 'delete' }
         ]
       }
     },
