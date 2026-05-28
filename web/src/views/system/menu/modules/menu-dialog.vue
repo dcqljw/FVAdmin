@@ -25,6 +25,19 @@
           <ElRadioButton value="button" label="button">按钮</ElRadioButton>
         </ElRadioGroup>
       </template>
+      <template #icon>
+        <ElInput v-model="form.icon" placeholder="如：ri:user-line" clearable>
+          <template #prepend>
+            <ArtSvgIcon v-if="form.icon" :icon="form.icon" class="text-lg" />
+            <span v-else class="text-xs text-g-400">无</span>
+          </template>
+          <template #append>
+            <ElButton @click="iconDialogVisible = true">
+              <ArtSvgIcon icon="ri:apps-line" />
+            </ElButton>
+          </template>
+        </ElInput>
+      </template>
     </ArtForm>
 
     <template #footer>
@@ -33,20 +46,58 @@
         <ElButton type="primary" @click="handleSubmit">确 定</ElButton>
       </span>
     </template>
+
+    <!-- 图标选择对话框 -->
+    <ElDialog v-model="iconDialogVisible" title="选择图标" width="680px" align-center append-to-body>
+      <ElInput v-model="iconSearchText" placeholder="搜索图标..." prefix-icon="Search" clearable class="mb-4" />
+      <ElScrollbar height="400px">
+        <div class="icon-grid">
+          <div
+            v-for="iconName in filteredIcons"
+            :key="iconName"
+            class="icon-item flex-center cursor-pointer rounded border border-g-300 p-3"
+            :class="{ 'icon-selected': form.icon === `ri:${iconName}` }"
+            @click="selectIcon(`ri:${iconName}`)"
+          >
+            <ArtSvgIcon :icon="`ri:${iconName}`" class="text-2xl" />
+          </div>
+        </div>
+      </ElScrollbar>
+      <template #footer>
+        <ElButton @click="iconDialogVisible = false">取 消</ElButton>
+      </template>
+    </ElDialog>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
   import type { FormRules } from 'element-plus'
-  import { ElIcon, ElTooltip } from 'element-plus'
+  import { ElIcon, ElTooltip, ElDivider } from 'element-plus'
   import { QuestionFilled } from '@element-plus/icons-vue'
   import { formatMenuTitle } from '@/utils/router'
   import type { AppRouteRecord } from '@/types/router'
   import type { FormItem } from '@/components/core/forms/art-form/index.vue'
   import ArtForm from '@/components/core/forms/art-form/index.vue'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { useWindowSize } from '@vueuse/core'
+  import riIcons from '@iconify-json/ri/icons.json'
 
   const { width } = useWindowSize()
+
+  // 图标列表
+  const allIconNames = Object.keys(riIcons.icons)
+  const iconSearchText = ref('')
+  const iconDialogVisible = ref(false)
+
+  const filteredIcons = computed(() => {
+    if (!iconSearchText.value) return allIconNames
+    return allIconNames.filter((name) => name.includes(iconSearchText.value.toLowerCase()))
+  })
+
+  const selectIcon = (iconName: string) => {
+    form.icon = iconName
+    iconDialogVisible.value = false
+  }
 
   /**
    * 创建带 tooltip 的表单标签
@@ -88,7 +139,6 @@
     showTextBadge: string
     fixedTab: boolean
     activePath: string
-    roles: string[]
     isFullPage: boolean
     authName: string
     authLabel: string
@@ -140,7 +190,6 @@
     showTextBadge: '',
     fixedTab: false,
     activePath: '',
-    roles: [],
     isFullPage: false,
     authName: '',
     authLabel: '',
@@ -192,16 +241,7 @@
           type: 'input',
           props: { placeholder: '如：/system/user 或留空' }
         },
-        { label: '图标', key: 'icon', type: 'input', props: { placeholder: '如：ri:user-line' } },
-        {
-          label: createLabelTooltip(
-            '角色权限',
-            '仅用于前端权限模式：配置角色标识（如 R_SUPER、R_ADMIN）\n后端权限模式：无需配置'
-          ),
-          key: 'roles',
-          type: 'inputtag',
-          props: { placeholder: '输入角色标识后按回车，如：R_SUPER' }
-        },
+        { label: '图标', key: 'icon', type: '', props: { placeholder: '如：ri:user-line' } },
         {
           label: '菜单排序',
           key: 'sort',
@@ -228,6 +268,12 @@
           key: 'activePath',
           type: 'input',
           props: { placeholder: '如：/system/user' }
+        },
+        {
+          key: 'divider',
+          label: '',
+          span: 24,
+          render: () => h(ElDivider, { contentPosition: 'center' }, () => '其他设置')
         },
         { label: '是否启用', key: 'isEnable', type: 'switch', span: switchSpan },
         { label: '页面缓存', key: 'keepAlive', type: 'switch', span: switchSpan },
@@ -316,7 +362,6 @@
       form.showTextBadge = row.meta?.showTextBadge || ''
       form.fixedTab = row.meta?.fixedTab ?? false
       form.activePath = row.meta?.activePath || ''
-      form.roles = row.meta?.roles || []
       form.isFullPage = row.meta?.isFullPage ?? false
     } else {
       const row = props.editData
@@ -394,3 +439,29 @@
     }
   )
 </script>
+
+<style scoped>
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.icon-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.icon-item:hover {
+  border-color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
+}
+
+.icon-selected {
+  border-color: var(--el-color-primary) !important;
+  background-color: var(--el-color-primary-light-9) !important;
+  box-shadow: 0 0 0 1px var(--el-color-primary);
+}
+</style>

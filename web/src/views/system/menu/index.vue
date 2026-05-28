@@ -393,8 +393,11 @@
   const handleEditAuth = (row: AppRouteRecord): void => {
     dialogType.value = 'button'
     editData.value = {
+      id: row.id,
       title: row.meta?.title,
-      authMark: row.meta?.authMark
+      authMark: row.meta?.authMark,
+      icon: row.meta?.icon || '',
+      sort: row.meta?.sort || 1
     }
     lockMenuType.value = true
     dialogVisible.value = true
@@ -408,7 +411,6 @@
     path: string
     component?: string
     icon?: string
-    roles?: string[]
     sort?: number
     [key: string]: any
   }
@@ -425,12 +427,21 @@
       path: formData.path || '',
       meta: {
         title: formData.menuType === 'menu' ? formData.name || '' : formData.authName,
-        icon: formData.icon || '',
-        isHide: formData.isHide
+        icon: formData.menuType === 'menu' ? formData.icon || '' : formData.authIcon || '',
+        isHide: formData.isHide,
+        keepAlive: formData.keepAlive,
+        isIframe: formData.isIframe,
+        showBadge: formData.showBadge,
+        fixedTab: formData.fixedTab,
+        isHideTab: formData.isHideTab,
+        isFullPage: formData.isFullPage,
+        link: formData.link || '',
+        showTextBadge: formData.showTextBadge || '',
+        activePath: formData.activePath || ''
       },
       component: formData.component || '',
-      sort: formData.sort || 1,
-      status: formData.isEnable || true,
+      sort: formData.menuType === 'menu' ? formData.sort || 1 : formData.authSort || 1,
+      status: formData.isEnable ?? true,
       auth_mark: formData.authLabel || '',
       type: formData.menuType === 'menu' ? 1 : 2
     }
