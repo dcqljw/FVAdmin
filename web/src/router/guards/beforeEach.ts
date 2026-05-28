@@ -35,7 +35,7 @@
  * @module router/guards/beforeEach
  * @author Art Design Pro Team
  */
-import type { Router, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+import type { Router, RouteLocationNormalized, RouteLocationRaw } from 'vue-router'
 import { nextTick } from 'vue'
 import NProgress from 'nprogress'
 import { useSettingStore } from '@/store/modules/setting'
@@ -105,21 +105,15 @@ export function setupBeforeEachGuard(router: Router): void {
   // 初始化路由注册器
   routeRegistry = new RouteRegistry(router)
 
-  router.beforeEach(
-    async (
-      to: RouteLocationNormalized,
-      from: RouteLocationNormalized,
-      next: NavigationGuardNext
-    ) => {
-      try {
-        await handleRouteGuard(to, from, next, router)
-      } catch (error) {
-        console.error('[RouteGuard] 路由守卫处理失败:', error)
-        closeLoading()
-        next({ name: 'Exception500' })
-      }
+  router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
+    try {
+      return await handleRouteGuard(to, from, router)
+    } catch (error) {
+      console.error('[RouteGuard] 路由守卫处理失败:', error)
+      closeLoading()
+      return { name: 'Exception500' }
     }
-  )
+  })
 }
 
 /**
@@ -140,9 +134,8 @@ function closeLoading(): void {
 async function handleRouteGuard(
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
-  next: NavigationGuardNext,
   router: Router
-): Promise<void> {
+): Promise<true | RouteLocationRaw> {
   const settingStore = useSettingStore()
   const userStore = useUserStore()
 
@@ -152,81 +145,71 @@ async function handleRouteGuard(
   }
 
   // 1. 检查登录状态
-  if (!handleLoginStatus(to, userStore, next)) {
-    return
+  const loginResult = handleLoginStatus(to, userStore)
+  if (loginResult !== true) {
+    return loginResult
   }
 
   // 2. 检查路由初始化是否已失败（防止死循环）
   if (routeInitFailed) {
-    // 已经失败过，直接放行到错误页面，不再重试
     if (to.matched.length > 0) {
-      next()
-    } else {
-      // 未匹配到路由，跳转到 500 页面
-      next({ name: 'Exception500', replace: true })
+      return true
     }
-    return
+    return { name: 'Exception500', replace: true }
   }
 
   // 3. 处理动态路由注册
   if (!routeRegistry?.isRegistered() && userStore.isLogin) {
-    // 预加载正在进行中，等待完成后再导航
     if (routeInitInProgress) {
       const startTime = Date.now()
-      const MAX_WAIT = 5000 // 最多等待 5 秒
+      const MAX_WAIT = 5000
 
       while (routeInitInProgress && Date.now() - startTime < MAX_WAIT) {
         await new Promise(resolve => setTimeout(resolve, 50))
       }
 
-      // 等待完成后重新检查状态
       if (routeRegistry?.isRegistered()) {
-        // 路由已注册好，重新导航到目标路径
-        router.push({
+        return {
           path: to.path,
           query: to.query,
           hash: to.hash,
           replace: true
-        })
-        return
+        }
       }
 
-      // 等待超时或初始化失败，走兜底逻辑
       if (!routeInitFailed) {
-        await handleDynamicRoutes(to, next, router)
+        return await handleDynamicRoutes(to, router)
       }
-      return
+      return true
     }
-    await handleDynamicRoutes(to, next, router)
-    return
+    return await handleDynamicRoutes(to, router)
   }
 
   // 4. 处理根路径重定向
-  if (handleRootPathRedirect(to, next)) {
-    return
+  const rootRedirect = handleRootPathRedirect(to)
+  if (rootRedirect) {
+    return rootRedirect
   }
 
   // 5. 处理已匹配的路由
   if (to.matched.length > 0) {
     setWorktab(to)
     setPageTitle(to)
-    next()
-    return
+    return true
   }
 
   // 6. 未匹配到路由，跳转到 404
-  next({ name: 'Exception404' })
+  return { name: 'Exception404' }
 }
 
 /**
  * 处理登录状态
- * @returns true 表示可以继续，false 表示已处理跳转
+ * @returns true 表示可以继续，RouteLocationRaw 表示需要跳转的目标
  */
 function handleLoginStatus(
   to: RouteLocationNormalized,
-  userStore: ReturnType<typeof useUserStore>,
-  next: NavigationGuardNext
-): boolean {
+  userStore: ReturnType<typeof useUserStore>
+): true | RouteLocationRaw {
   // 已登录或访问登录页或静态路由，直接放行
   if (userStore.isLogin || to.path === RoutesAlias.Login || isStaticRoute(to.path)) {
     return true
@@ -234,11 +217,10 @@ function handleLoginStatus(
 
   // 未登录且访问需要权限的页面，跳转到登录页并携带 redirect 参数
   userStore.logOut()
-  next({
+  return {
     name: 'Login',
     query: { redirect: to.fullPath }
-  })
-  return false
+  }
 }
 
 /**
@@ -338,9 +320,8 @@ export async function initDynamicRoutes(router: Router): Promise<void> {
  */
 async function handleDynamicRoutes(
   to: RouteLocationNormalized,
-  next: NavigationGuardNext,
   router: Router
-): Promise<void> {
+): Promise<true | RouteLocationRaw> {
   // 显示 loading
   pendingLoading = true
   loadingService.showLoading()
@@ -363,18 +344,18 @@ async function handleDynamicRoutes(
     if (!hasPermission) {
       // 无权限访问，跳转到首页
       console.warn(`[RouteGuard] 用户无权限访问路径: ${to.path}，已跳转到首页`)
-      next({
+      return {
         path: validatedPath,
         replace: true
-      })
-    } else {
-      // 有权限，正常导航
-      next({
-        path: to.path,
-        query: to.query,
-        hash: to.hash,
-        replace: true
-      })
+      }
+    }
+
+    // 有权限，正常导航
+    return {
+      path: to.path,
+      query: to.query,
+      hash: to.hash,
+      replace: true
     }
   } catch (error) {
     console.error('[RouteGuard] 动态路由注册失败:', error)
@@ -383,7 +364,7 @@ async function handleDynamicRoutes(
     closeLoading()
 
     // 跳转到 500 页面，使用 replace 避免产生历史记录
-    next({ name: 'Exception500', replace: true })
+    return { name: 'Exception500', replace: true }
   }
 }
 
@@ -417,17 +398,16 @@ export function resetRouterState(delay: number): void {
 
 /**
  * 处理根路径重定向到首页
- * @returns true 表示已处理跳转，false 表示无需跳转
+ * @returns 需要跳转的目标路径，或 false 表示无需跳转
  */
-function handleRootPathRedirect(to: RouteLocationNormalized, next: NavigationGuardNext): boolean {
+function handleRootPathRedirect(to: RouteLocationNormalized): RouteLocationRaw | false {
   if (to.path !== '/') {
     return false
   }
 
   const { homePath } = useCommon()
   if (homePath.value && homePath.value !== '/') {
-    next({ path: homePath.value, replace: true })
-    return true
+    return { path: homePath.value, replace: true }
   }
 
   return false

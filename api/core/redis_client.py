@@ -86,6 +86,7 @@ class RedisCache:
     ) -> bool:
         """设置缓存值"""
         if not self._enabled or not self._redis:
+            cache_logger.warning(f"Redis 不可用，SET 操作降级跳过: {key}")
             return False
         try:
             serialized = self._serialize(value)

@@ -1,5 +1,6 @@
 import time
 import json
+import uuid
 import asyncio
 from typing import Callable, Awaitable
 
@@ -7,7 +8,7 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import StreamingResponse, Response
 
-from core.log_config import api_logger
+from core.log_config import api_logger, request_id_var
 from core.security import verify_token
 from services.operation_log_service import operation_log_service
 
@@ -127,6 +128,10 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         start_time = time.time()
 
+        # 生成请求追踪 ID
+        rid = uuid.uuid4().hex[:8]
+        request_id_var.set(rid)
+
         request_method = request.method
         request_url_path = str(request.url.path)
         request_client = request.client.host if request.client else "unknown"
@@ -170,6 +175,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 f"响应大小: {response_size} bytes"
             )
 
+            response.headers["X-Request-ID"] = rid
             return response
 
         except Exception as e:

@@ -21,6 +21,8 @@ async def lifespan(_app: FastAPI):
     app_logger.info("应用启动")
 
     await redis_cache.connect()  # 初始化 Redis
+    if not redis_cache.is_enabled():
+        raise RuntimeError("Redis 连接失败，程序无法启动")
     async with register_mysql(_app):
         await init_data()
         yield
