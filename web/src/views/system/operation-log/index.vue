@@ -22,6 +22,13 @@
         :pagination="pagination"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
+        @row-click="handleRowClick"
+      />
+
+      <!-- 操作日志详情抽屉 -->
+      <OperationLogDetailDrawer
+        v-model="detailDrawerVisible"
+        :log-data="selectedLog as OperationLogItem"
       />
     </ElCard>
   </div>
@@ -32,6 +39,8 @@
   import { fetchGetOperationLogList } from '@/api/system-manage'
   import { ElTag } from 'element-plus'
   import ArtExcelExport from '@/components/core/forms/art-excel-export/index.vue'
+  import OperationLogDetailDrawer from './modules/operation-log-detail-drawer.vue'
+  import { getStatusTagType, getMethodTagType } from './utils'
 
   defineOptions({ name: 'OperationLog' })
 
@@ -50,28 +59,20 @@
     created_at: { title: '操作时间' }
   }
 
-  /**
-   * 获取状态码对应的标签颜色
-   */
-  const getStatusTagType = (statusCode: number): 'success' | 'warning' | 'danger' | 'info' => {
-    if (statusCode >= 200 && statusCode < 300) return 'success'
-    if (statusCode >= 400 && statusCode < 500) return 'warning'
-    if (statusCode >= 500) return 'danger'
-    return 'info'
-  }
+  // 详情抽屉状态 — 单个 ref，null 表示关闭
+  const selectedLog = ref<OperationLogItem | null>(null)
+  const detailDrawerVisible = computed({
+    get: () => selectedLog.value !== null,
+    set: (v: boolean) => {
+      if (!v) selectedLog.value = null
+    }
+  })
 
   /**
-   * 获取请求方法对应的标签颜色
+   * 行点击事件 — 打开详情抽屉
    */
-  const getMethodTagType = (method: string) => {
-    const map: Record<string, string> = {
-      GET: 'success',
-      POST: 'primary',
-      PUT: 'warning',
-      DELETE: 'danger',
-      PATCH: 'info'
-    }
-    return (map[method] || 'info') as any
+  const handleRowClick = (row: OperationLogItem) => {
+    selectedLog.value = row
   }
 
   const {

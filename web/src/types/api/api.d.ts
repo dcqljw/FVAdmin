@@ -150,6 +150,8 @@ declare namespace Api {
       ip: string
       status_code: number
       cost_time: number
+      request_body: string | null
+      response_body: string | null
       created_at: string
     }
 
