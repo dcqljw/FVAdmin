@@ -9,7 +9,7 @@ from services.operation_log_service import operation_log_service
 router = APIRouter(prefix="/operation-log", tags=["操作日志管理"])
 
 
-@router.get("/list")
+@router.get("")
 async def get_operation_log_list(
     current: int = 1,
     size: int = 10,

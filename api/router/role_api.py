@@ -9,7 +9,7 @@ from services import role_service
 router = APIRouter(prefix="/role", tags=["角色管理"])
 
 
-@router.get("/list")
+@router.get("")
 async def get_role_list(
     current: int = 1,
     size: int = 10,
@@ -17,10 +17,10 @@ async def get_role_list(
     code: str = None,
     description: str = None,
 ):
-    role_list = await role_service.list_roles(
+    role_list, total = await role_service.list_roles(
         current=current, size=size, name=name, code=code, description=description,
     )
-    return SuccessResponse(data=role_list)
+    return SuccessResponse(data={"records": role_list, "total": total})
 
 
 @router.post("/add")

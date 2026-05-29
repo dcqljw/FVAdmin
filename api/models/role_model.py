@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
 from tortoise import fields
 from tortoise.models import Model
-from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
-from pydantic import ConfigDict, field_serializer, BaseModel
+from tortoise.contrib.pydantic import pydantic_model_creator
+from pydantic import ConfigDict, field_serializer
 
 
 class Role(Model):
@@ -23,7 +23,6 @@ RolePydantic = pydantic_model_creator(
     Role,
     name="Role",
 )
-RolePydanticList = pydantic_queryset_creator(Role, name="RoleList")
 
 
 class RoleResponse(RolePydantic):
@@ -33,7 +32,3 @@ class RoleResponse(RolePydantic):
         if value is None:
             return None
         return value.strftime("%Y-%m-%d %H:%M:%S")
-
-
-class RoleListResponse(BaseModel):
-    data: List[RoleResponse]

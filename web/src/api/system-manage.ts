@@ -4,7 +4,7 @@ import { AppRouteRecord } from '@/types/router'
 // 获取用户列表
 export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
   return request.get<Api.SystemManage.UserList>({
-    url: '/api/user/list',
+    url: '/api/user',
     params
   })
 }
@@ -12,7 +12,7 @@ export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
 // 获取角色列表
 export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   return request.get<Api.SystemManage.RoleList>({
-    url: '/api/role/list',
+    url: '/api/role',
     params
   })
 }
@@ -20,7 +20,7 @@ export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
-    url: '/api/menu/list'
+    url: '/api/menu'
   })
 }
 // 根据角色获取菜单
@@ -125,7 +125,7 @@ export function fetchDeleteMenu(id: number) {
 // 获取操作日志列表
 export function fetchGetOperationLogList(params: Api.OperationLog.OperationLogSearchParams) {
   return request.get<Api.OperationLog.OperationLogList>({
-    url: '/api/operation-log/list',
+    url: '/api/operation-log',
     params
   })
 }

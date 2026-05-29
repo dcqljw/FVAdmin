@@ -7,6 +7,7 @@ import jwt
 from passlib.context import CryptContext
 
 from core.settings import settings
+from core.log_config import api_logger
 
 context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -119,7 +120,7 @@ def verify_token(token: str):
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         return payload
     except Exception as e:
-        print(f"验证错误: {str(e)}")
+        api_logger.error("Token verification failed", exc_info=True)
         return None
 
 

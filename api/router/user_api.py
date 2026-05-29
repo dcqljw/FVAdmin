@@ -15,7 +15,7 @@ async def get_user_info(user: User = Depends(get_current_user)):
     return SuccessResponse(data=user_dict)
 
 
-@router.get("/list")
+@router.get("")
 async def get_user_list(
     user: User = Depends(get_current_user),
     current: int = 1,
@@ -28,7 +28,7 @@ async def get_user_list(
         current=current, size=size,
         username=username, phone=phone, email=email,
     )
-    return SuccessResponse(data=user_list)
+    return SuccessResponse(data={"records": user_list, "total": total})
 
 
 @router.post("/add")

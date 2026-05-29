@@ -9,7 +9,7 @@ from services import menu_service
 router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 
-@router.get("/list")
+@router.get("")
 async def menu_list(current_user: User = Depends(get_current_user)):
     tree = await menu_service.get_menu_tree_for_user(current_user)
     return SuccessResponse(data=tree)

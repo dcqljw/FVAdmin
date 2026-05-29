@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Optional, Tuple, List
 
 from tortoise.expressions import Q
 
 from core.log_config import api_logger
 from custom_exception import CustomException
-from models.role_model import Role, RoleResponse, RoleListResponse
+from models.role_model import Role, RoleResponse
 from models.user_model import User
 from services.base import BaseService
 
@@ -18,7 +18,7 @@ class RoleService(BaseService):
         name: Optional[str] = None,
         code: Optional[str] = None,
         description: Optional[str] = None,
-    ) -> RoleListResponse:
+    ) -> Tuple[List[dict], int]:
         query = Role.all()
         if name:
             query = query.filter(name__contains=name)
@@ -27,9 +27,10 @@ class RoleService(BaseService):
         if description:
             query = query.filter(description__contains=description)
 
+        total = await query.count()
         roles = await query.offset((current - 1) * size).limit(size).all()
-        role_response = [RoleResponse.model_validate(role) for role in roles]
-        return RoleListResponse(data=role_response)
+        role_list = [RoleResponse.model_validate(role).model_dump(mode="json") for role in roles]
+        return role_list, total
 
     async def create_role(
         self, name: str, code: str, description: str, enabled: bool
