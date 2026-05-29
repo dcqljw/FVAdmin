@@ -10,7 +10,9 @@
       <ElDescriptionsItem label="ID">{{ logData.id }}</ElDescriptionsItem>
       <ElDescriptionsItem label="用户名">{{ logData.username }}</ElDescriptionsItem>
       <ElDescriptionsItem label="操作模块" :span="2">{{ logData.module }}</ElDescriptionsItem>
-      <ElDescriptionsItem label="操作类型" :span="2">{{ logData.operation }}</ElDescriptionsItem>
+      <ElDescriptionsItem label="操作类型" :span="2">
+        <ElTag :type="getOperationTagType(logData.operation)">{{ logData.operation }}</ElTag>
+      </ElDescriptionsItem>
       <ElDescriptionsItem label="请求方法">
         <ElTag :type="getMethodTagType(logData.method)">{{ logData.method }}</ElTag>
       </ElDescriptionsItem>
@@ -24,12 +26,32 @@
       <ElDescriptionsItem label="耗时(s)">{{ logData.cost_time.toFixed(2) }}</ElDescriptionsItem>
       <ElDescriptionsItem label="操作时间" :span="2">{{ formatTime(logData.created_at) }}</ElDescriptionsItem>
     </ElDescriptions>
+
+    <div v-if="logData.query_params" class="detail-section">
+      <div class="detail-label">查询参数</div>
+      <ElInput
+        type="textarea"
+        :model-value="formattedQueryParams"
+        :autosize="{ minRows: 2, maxRows: 8 }"
+        readonly
+      />
+    </div>
+
+    <div v-if="logData.request_body" class="detail-section">
+      <div class="detail-label">请求体</div>
+      <ElInput
+        type="textarea"
+        :model-value="formattedRequestBody"
+        :autosize="{ minRows: 2, maxRows: 8 }"
+        readonly
+      />
+    </div>
   </ElDrawer>
 </template>
 
 <script setup lang="ts">
-  import { ElDescriptions, ElDescriptionsItem, ElDrawer, ElTag } from 'element-plus'
-  import { getStatusTagType, getMethodTagType } from '../utils'
+  import { ElDescriptions, ElDescriptionsItem, ElDrawer, ElInput, ElTag } from 'element-plus'
+  import { getStatusTagType, getMethodTagType, getOperationTagType, formatJson } from '../utils'
 
   interface Props {
     modelValue: boolean
@@ -54,4 +76,18 @@
     const [datePart, timePart] = date.toLocaleString().split(' ')
     return `${datePart.replace(/\//g, '-')} ${timePart}`
   }
+
+  const formattedQueryParams = computed(() => formatJson(props.logData.query_params))
+  const formattedRequestBody = computed(() => formatJson(props.logData.request_body))
 </script>
+
+<style scoped lang="scss">
+  .detail-section {
+    margin-top: 16px;
+
+    .detail-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+  }
+</style>
