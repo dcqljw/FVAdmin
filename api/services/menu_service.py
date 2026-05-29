@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 from tortoise.functions import Count
@@ -15,12 +16,24 @@ class MenuService(BaseService):
     async def get_menu_tree_for_user(self, user) -> List[dict]:
         all_menus = []
         if user.username == "admin":
-            all_menus = await Menu.filter().order_by("-sort").all()
+            all_menus = await Menu.filter().order_by("sort").all()
         else:
             roles = await user.roles.all()
-            for role in roles:
-                role_menus = await role.menus.order_by("-sort")
+            # 并行获取每个角色的菜单
+            role_menus_results = await asyncio.gather(
+                *[role.menus.order_by("sort") for role in roles]
+            )
+            for role_menus in role_menus_results:
                 all_menus.extend(role_menus)
+
+            # 去重：多个角色可能共享相同菜单
+            seen_ids = set()
+            deduped_menus = []
+            for menu in all_menus:
+                if menu.id not in seen_ids:
+                    seen_ids.add(menu.id)
+                    deduped_menus.append(menu)
+            all_menus = deduped_menus
 
         pydantic_list = MenuPydanticList(all_menus).model_dump(mode="json")
         return convert_menu_to_tree(pydantic_list)

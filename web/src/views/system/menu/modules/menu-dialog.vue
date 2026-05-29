@@ -335,7 +335,6 @@
    */
   const loadFormData = (): void => {
     if (!props.editData) return
-    console.log('loadFormData:', props.editData)
     if (props.lockType) {
       isEdit.value = true
     } else {
@@ -350,7 +349,7 @@
       form.label = row.name || ''
       form.component = row.component || ''
       form.icon = row.meta?.icon || ''
-      form.sort = row.meta?.sort || 1
+      form.sort = row.sort ?? 1
       form.isMenu = row.meta?.isMenu ?? true
       form.keepAlive = row.meta?.keepAlive ?? false
       form.isHide = row.meta?.isHide ?? false
@@ -380,13 +379,10 @@
 
     try {
       await formRef.value.validate()
-      console.log('form', form)
       const row = props.editData
-      console.log('row', row)
       if (row) {
         form.parent_id = row.id
       }
-      console.log('form', form)
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
       handleCancel()

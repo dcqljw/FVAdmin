@@ -29,10 +29,10 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
         elif menu_type == 2:
             parent_map[parent_id]["buttons"].append(menu)
 
-    # 对每个父级下的菜单和按钮按 sort 降序排序（最大的在最上面）
-    for parent_id in parent_map:
-        parent_map[parent_id]["menus"].sort(key=lambda x: x.get("sort", 0), reverse=True)
-        parent_map[parent_id]["buttons"].sort(key=lambda x: x.get("sort", 0), reverse=True)
+    # 对每个父级下的菜单和按钮按 sort 升序排序（最小的在最上面）
+    for entry in parent_map.values():
+        entry["menus"].sort(key=lambda x: x.get("sort", 0))
+        entry["buttons"].sort(key=lambda x: x.get("sort", 0))
 
     # 2. 递归构建树形结构（核心逻辑）
     def build_tree(current_parent_id: int) -> list[dict]:
@@ -50,6 +50,7 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
                 "path": menu.get("path", ""),
                 "component": menu.get("component", ""),
                 "meta": menu.get("meta", {}) or {},  # 继承原meta字段
+                "sort": menu.get("sort", 0),
                 "children": []  # 子菜单（仅菜单节点）
             }
 
@@ -62,7 +63,8 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
                     "id": btn["id"],
                     "name": btn.get("name", ""),
                     "authMark": btn.get("auth_mark", ""),
-                    "title": btn.get("meta", {}).get("title", ""),  # 安全取值，避免KeyError
+                    "title": btn.get("meta", {}).get("title", ""),
+                    "sort": btn.get("sort", 0),
                     "type": 2  # 标记为按钮类型（可选）
                 })
 

@@ -174,6 +174,12 @@
       }
     },
     {
+      prop: 'sort',
+      label: '排序',
+      width: 80,
+      align: 'center'
+    },
+    {
       prop: 'meta.authList',
       label: '权限标识',
       formatter: (row: AppRouteRecord) => {
@@ -397,7 +403,7 @@
       title: row.meta?.title,
       authMark: row.meta?.authMark,
       icon: row.meta?.icon || '',
-      sort: row.meta?.sort || 1
+      sort: row.sort ?? 1
     }
     lockMenuType.value = true
     dialogVisible.value = true
@@ -420,7 +426,6 @@
    * @param formData 表单数据
    */
   const handleSubmit = async (formData: MenuFormData): Promise<void> => {
-    console.log('提交数据:', formData)
     const form = {
       parent_id: formData.id,
       name: formData.menuType === 'menu' ? formData.label : formData.authName,
@@ -445,8 +450,6 @@
       auth_mark: formData.authLabel || '',
       type: formData.menuType === 'menu' ? 1 : 2
     }
-    console.log('form_in:', form)
-    // TODO: 调用API保存数据
     if (lockMenuType.value) {
       await fetchEditMenu(form)
     } else {
@@ -456,18 +459,18 @@
   }
 
   /**
-   * 删除菜单
+   * 删除菜单或权限
+   * @param id 要删除的项目ID
+   * @param label 项目名称（用于提示语）
    */
-  const handleDeleteMenu = async (id: number): Promise<void> => {
-    console.log('handleDeleteMenu:', id)
+  const handleDelete = async (id: number, label: string = '菜单'): Promise<void> => {
     try {
-      await ElMessageBox.confirm('确定要删除该菜单吗？删除后无法恢复', '提示', {
+      await ElMessageBox.confirm(`确定要删除该${label}吗？删除后无法恢复`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async () => {
-        await fetchDeleteMenu(id)
       })
+      await fetchDeleteMenu(id)
       await getMenuList()
     } catch (error) {
       if (error !== 'cancel') {
@@ -477,24 +480,17 @@
   }
 
   /**
+   * 删除菜单
+   */
+  const handleDeleteMenu = (id: number): Promise<void> => {
+    return handleDelete(id, '菜单')
+  }
+
+  /**
    * 删除权限按钮
    */
-  const handleDeleteAuth = async (id: number): Promise<void> => {
-    console.log('handleDeleteAuth:', id)
-    try {
-      await ElMessageBox.confirm('确定要删除该权限吗？删除后无法恢复', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async () => {
-        await fetchDeleteMenu(id)
-      })
-      await getMenuList()
-    } catch (error) {
-      if (error !== 'cancel') {
-        ElMessage.error('删除失败')
-      }
-    }
+  const handleDeleteAuth = (id: number): Promise<void> => {
+    return handleDelete(id, '权限')
   }
 
   /**
