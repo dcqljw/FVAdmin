@@ -76,26 +76,6 @@
     status: '1'
   })
 
-  // 用户状态配置
-  const USER_STATUS_CONFIG = {
-    '1': { type: 'success' as const, text: '在线' },
-    '2': { type: 'info' as const, text: '离线' },
-    '3': { type: 'warning' as const, text: '异常' },
-    '4': { type: 'danger' as const, text: '注销' }
-  } as const
-
-  /**
-   * 获取用户状态配置
-   */
-  const getUserStatusConfig = (status: string) => {
-    return (
-      USER_STATUS_CONFIG[status as keyof typeof USER_STATUS_CONFIG] || {
-        type: 'info' as const,
-        text: '未知'
-      }
-    )
-  }
-
   const {
     columns,
     columnChecks,
@@ -150,7 +130,9 @@
           prop: 'status',
           label: '状态',
           formatter: (row) => {
-            const statusConfig = getUserStatusConfig(row.status)
+            const statusConfig = row.status === '1'
+              ? { type: 'success' as const, text: '启用' }
+              : { type: 'danger' as const, text: '禁用' }
             return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
           }
         },
