@@ -10,8 +10,24 @@ router = APIRouter(prefix="/menu", tags=["菜单管理"])
 
 
 @router.get("")
-async def menu_list(current_user: User = Depends(get_current_user)):
-    tree = await menu_service.get_menu_tree_for_user(current_user)
+async def menu_list(
+    current_user: User = Security(permission_check, scopes=['menu:list']),
+):
+    """
+    获取全量菜单树（菜单管理页使用）
+    需要 menu:list 权限
+    """
+    tree = await menu_service.get_all_menu_tree()
+    return SuccessResponse(data=tree)
+
+
+@router.get("/route")
+async def route_menu_list(current_user: User = Depends(get_current_user)):
+    """
+    获取当前用户有权限的菜单树（侧边栏导航/路由注册使用）
+    只需登录即可，返回按角色过滤后的菜单，自动补全祖先链
+    """
+    tree = await menu_service.get_user_menu_tree(current_user)
     return SuccessResponse(data=tree)
 
 
@@ -23,7 +39,7 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
     :param uid:
     :return:
     """
-    leaf_menu_ids = await menu_service.get_role_leaf_menu_ids(role_id)
+    leaf_menu_ids = await menu_service.get_role_menu_ids(role_id)
     return SuccessResponse(data=leaf_menu_ids)
 
 

@@ -17,10 +17,16 @@ export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   })
 }
 
-// 获取菜单列表
+// 获取菜单列表（菜单管理页，全量）
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
     url: '/api/menu'
+  })
+}
+// 获取当前用户有权限的菜单（侧边栏导航/路由注册）
+export function fetchGetRouteMenuList() {
+  return request.get<AppRouteRecord[]>({
+    url: '/api/menu/route'
   })
 }
 // 根据角色获取菜单
