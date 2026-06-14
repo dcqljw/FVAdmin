@@ -2,10 +2,10 @@ import random
 import string
 
 from core.security import get_password_hash
-from models.menu_model import Menu
-from models.role_model import Role
-from models.user_model import User
-from core.log_config import app_logger
+from modules.system.models import Menu
+from modules.system.models import Role
+from modules.system.models import User
+from shared.log_config import app_logger
 
 
 async def create_superuser():

@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 
-from models.user_model import User
-from router.deps import get_current_user, permission_check
-from schemas.operation_log import OperationLogListSchema
-from schemas.response import SuccessResponse
-from services.operation_log_service import operation_log_service
+from core.deps import get_current_user
+from shared.base_schema import SuccessResponse
+from modules.system.models import User
+from modules.log.service import operation_log_service
 
-router = APIRouter(prefix="/operation-log", tags=["操作日志管理"])
+router = APIRouter(prefix="/system/operation-log", tags=["操作日志管理"])
 
 
 @router.get("")

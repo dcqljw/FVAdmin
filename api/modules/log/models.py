@@ -40,7 +40,7 @@ class OperationLogResponse(BaseModel):
     status_code: int
     response_body: Optional[str] = None
     cost_time: float
-    created_at: Optional[str] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

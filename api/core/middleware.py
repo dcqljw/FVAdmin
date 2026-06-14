@@ -2,39 +2,39 @@ import time
 import json
 import uuid
 import asyncio
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Optional
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import StreamingResponse, Response
 
-from core.log_config import api_logger, request_id_var
+from shared.log_config import api_logger, request_id_var
 from core.security import verify_token
-from services.operation_log_service import operation_log_service
 
 # 不需要记录的路径模式（列表查询接口等）
-SKIP_PATHS = [
-    "/user/list",
-    "/role/list",
-    "/menu/list",
-    "/operation-log/list",
-    "/user/info",
-]
+SKIP_PATHS = {
+    "/system/user",
+    "/system/role",
+    "/system/menu",
+    "/system/menu/route",
+    "/system/operation-log",
+    "/system/user/info",
+}
 
 # 路由前缀到模块名的映射
-MODULE_MAP = {
-    "/user": "用户管理",
-    "/role": "角色管理",
-    "/menu": "菜单管理",
-    "/auth": "认证管理",
-    "/system": "系统管理",
-    "/operation-log": "操作日志管理",
-}
+MODULE_MAP = (
+    ("/system/user", "用户管理"),
+    ("/system/role", "角色管理"),
+    ("/system/menu", "菜单管理"),
+    ("/system/operation-log", "操作日志管理"),
+    ("/auth", "认证管理"),
+    ("/system", "系统管理"),
+)
 
 
 def _get_module_name(path: str) -> str:
     """从请求路径提取模块名"""
-    for prefix, name in MODULE_MAP.items():
+    for prefix, name in MODULE_MAP:
         if path.startswith(prefix):
             return name
     return "其他"
@@ -123,7 +123,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     """
     请求日志中间件
     记录所有API请求的详细信息（文件日志 + 数据库日志）
+    log_handler 通过构造函数注入，由 main.py 在启动时注入
     """
+
+    def __init__(self, app, log_handler: Optional[Callable] = None):
+        super().__init__(app)
+        self.log_handler = log_handler
 
     async def dispatch(self, request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
         start_time = time.time()
@@ -194,7 +199,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 request_url_path = request_url_path[len("/api"):]
 
             # 跳过不需要记录的路径
-            if request_url_path not in SKIP_PATHS:
+            if request_url_path not in SKIP_PATHS and self.log_handler:
                 # 异步写入数据库操作日志（不阻塞主请求）
                 try:
                     cost_time = time.time() - start_time
@@ -203,7 +208,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                     operation = _get_operation_type(request_method, request_url_path)
 
                     asyncio.create_task(
-                        operation_log_service.create_log(
+                        self.log_handler(
                             user_id=user_id,
                             username=username,
                             module=module,

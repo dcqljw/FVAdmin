@@ -1,3 +1,4 @@
+import importlib
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -5,14 +6,20 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from custom_exception import custom_exception_handler, CustomException
-from databases import register_mysql
-from init_core import init_data
-from core.settings import settings
-from core.log_config import setup_logging, app_logger
+from core.config import settings
+from core.db import register_mysql
+from core.exceptions import CustomException, custom_exception_handler
 from core.middleware import LoggingMiddleware
-from core.redis_client import redis_cache
-from router import auth_api, system_api, user_api, menu_api, role_api, operation_log_api
+from shared.log_config import setup_logging, app_logger
+from shared.redis_client import redis_cache
+from init_core import init_data
+
+# 业务模块路由：显式列出，启动时不做文件系统扫描
+ROUTER_MODULES = (
+    "modules.auth.router",
+    "modules.system.router",
+    "modules.log.router",
+)
 
 
 @asynccontextmanager
@@ -41,16 +48,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(LoggingMiddleware)
+# 中间件通过依赖注入解耦：在 main.py（组合根）注入 log_handler
+from modules.log.service import operation_log_service
+app.add_middleware(LoggingMiddleware, log_handler=operation_log_service.create_log)
 
 app.add_exception_handler(CustomException, custom_exception_handler)
 
-app.include_router(auth_api.router)
-app.include_router(system_api.router)
-app.include_router(user_api.router)
-app.include_router(menu_api.router)
-app.include_router(role_api.router)
-app.include_router(operation_log_api.router)
+# 注册业务模块路由
+for module_path in ROUTER_MODULES:
+    app.include_router(importlib.import_module(module_path).router)
 
 if __name__ == "__main__":
     uvicorn.run(app)

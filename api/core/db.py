@@ -1,4 +1,3 @@
-import aerich
 import os
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -6,8 +5,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import RegisterTortoise
 
-from core.settings import settings
-from core.log_config import db_logger
+from core.config import settings
+from shared.log_config import db_logger
 
 # ----------note------------
 # /etc/mysql/mysql.conf.d/mysqld.cnf
@@ -20,16 +19,17 @@ from core.log_config import db_logger
 # MySQL 将完全跳过上述 DNS 解析过程
 # 仅使用 IP 地址来识别客户端，不再进行主机名解析
 
-models_dir = Path(__file__).parent / "models"
+# 自动扫描 modules/ 下的所有 models.py 文件
+modules_dir = Path(__file__).parent.parent / "modules"
 model_modules = ['aerich.models']
-for root, folder, file in os.walk(models_dir):
+for root, folder, file in os.walk(modules_dir):
     for i in file:
-        filename = os.path.splitext(i)[0]
-        if filename.endswith("model"):
+        if i == "models.py":
             # 将文件路径转换为Python模块路径
-            relative_path = Path(root).relative_to(models_dir.parent)
-            module_path = str(relative_path / filename).replace(os.path.sep, '.')
+            relative_path = Path(root).relative_to(modules_dir.parent)
+            module_path = str(relative_path / i).replace("\\", ".").replace("/", ".").replace(".py", "")
             model_modules.append(module_path)
+
 db_config = {
     'connections': {
         'default': {

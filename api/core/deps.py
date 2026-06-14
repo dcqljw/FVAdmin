@@ -4,10 +4,10 @@ from fastapi import Depends, Header, Request, Security
 from fastapi.security import APIKeyHeader, SecurityScopes
 from fastapi.exceptions import HTTPException
 
-from core.redis_client import redis_cache
+from shared.redis_client import redis_cache
 from core.security import verify_token
-from custom_exception import CustomException
-from models.user_model import User
+from core.exceptions import CustomException
+from modules.system.models import User
 
 API_KEY_HEADER = APIKeyHeader(
     name="Authorization",

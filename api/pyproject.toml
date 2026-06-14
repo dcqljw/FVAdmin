@@ -24,6 +24,6 @@ url = "https://mirrors.aliyun.com/pypi/simple/"
 default = true
 
 [tool.aerich]
-tortoise_orm = "databases.db_config"
+tortoise_orm = "core.db.db_config"
 location = "./migrations"
 src_folder = "./."

@@ -3,7 +3,7 @@ import os
 from contextvars import ContextVar
 from logging.handlers import TimedRotatingFileHandler
 
-from core.settings import settings
+from core.config import settings
 
 # 请求追踪 ID，由中间件在每次请求开始时设置
 request_id_var: ContextVar[str] = ContextVar("request_id", default="-")

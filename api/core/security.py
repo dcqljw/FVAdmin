@@ -6,8 +6,8 @@ from typing import Optional
 import jwt
 from passlib.context import CryptContext
 
-from core.settings import settings
-from core.log_config import api_logger
+from core.config import settings
+from shared.log_config import api_logger
 
 context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

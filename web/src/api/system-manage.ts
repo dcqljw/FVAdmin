@@ -4,7 +4,7 @@ import { AppRouteRecord } from '@/types/router'
 // 获取用户列表
 export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
   return request.get<Api.SystemManage.UserList>({
-    url: '/api/user',
+    url: '/api/system/user',
     params
   })
 }
@@ -12,7 +12,7 @@ export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
 // 获取角色列表
 export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   return request.get<Api.SystemManage.RoleList>({
-    url: '/api/role',
+    url: '/api/system/role',
     params
   })
 }
@@ -20,19 +20,19 @@ export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
 // 获取菜单列表（菜单管理页，全量）
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
-    url: '/api/menu'
+    url: '/api/system/menu'
   })
 }
 // 获取当前用户有权限的菜单（侧边栏导航/路由注册）
 export function fetchGetRouteMenuList() {
   return request.get<AppRouteRecord[]>({
-    url: '/api/menu/route'
+    url: '/api/system/menu/route'
   })
 }
 // 根据角色获取菜单
 export function fetchGetMenuByRole(roleId: number) {
   return request.get<string[]>({
-    url: '/api/menu/get_checked',
+    url: '/api/system/menu/get_checked',
     params: {
       role_id: roleId
     }
@@ -42,7 +42,7 @@ export function fetchGetMenuByRole(roleId: number) {
 // 根据角色设置菜单
 export function fetchSetMenuByRole(roleId: number | undefined, menuIds: number[]) {
   return request.post<any>({
-    url: '/api/menu/add_menu_permission',
+    url: '/api/system/menu/add_menu_permission',
     data: {
       role_id: roleId,
       menu_ids: menuIds
@@ -53,7 +53,7 @@ export function fetchSetMenuByRole(roleId: number | undefined, menuIds: number[]
 // 新增用户
 export function fetchAddUser(formData: any) {
   return request.post<any>({
-    url: '/api/user/add',
+    url: '/api/system/user/add',
     data: {
       ...formData
     }
@@ -62,7 +62,7 @@ export function fetchAddUser(formData: any) {
 // 修改用户
 export function fetchUpdateUser(formData: any) {
   return request.post<any>({
-    url: '/api/user/edit',
+    url: '/api/system/user/edit',
     data: {
       ...formData
     }
@@ -71,19 +71,19 @@ export function fetchUpdateUser(formData: any) {
 // 删除用户
 export function fetchDeleteUser(id: number) {
   return request.post<any>({
-    url: `/api/user/delete?user_id=${id}`
+    url: `/api/system/user/delete?user_id=${id}`
   })
 }
 // 重置密码
 export function fetchResetPassword(id: number) {
   return request.post<any>({
-    url: `/api/user/reset-password?user_id=${id}`
+    url: `/api/system/user/reset-password?user_id=${id}`
   })
 }
 // 新增角色
 export function fetchAddRole(formData: any) {
   return request.post<any>({
-    url: '/api/role/add',
+    url: '/api/system/role/add',
     data: {
       ...formData
     }
@@ -92,13 +92,13 @@ export function fetchAddRole(formData: any) {
 // 删除角色
 export function fetchDeleteRole(id: number) {
   return request.post<any>({
-    url: `/api/role/delete?role_id=${id}`
+    url: `/api/system/role/delete?role_id=${id}`
   })
 }
 // 编辑角色
 export function fetchEditRole(formData: any) {
   return request.post<any>({
-    url: '/api/role/edit',
+    url: '/api/system/role/edit',
     data: {
       ...formData
     }
@@ -107,7 +107,7 @@ export function fetchEditRole(formData: any) {
 // 添加菜单
 export function fetchAddMenu(formData: any) {
   return request.post<any>({
-    url: '/api/menu/add',
+    url: '/api/system/menu/add',
     data: {
       ...formData
     }
@@ -115,7 +115,7 @@ export function fetchAddMenu(formData: any) {
 }
 export function fetchEditMenu(formData: any) {
   return request.post<any>({
-    url: '/api/menu/edit',
+    url: '/api/system/menu/edit',
     data: {
       ...formData
     }
@@ -124,21 +124,21 @@ export function fetchEditMenu(formData: any) {
 // 删除菜单
 export function fetchDeleteMenu(id: number) {
   return request.post<any>({
-    url: `/api/menu/delete?menu_id=${id}`
+    url: `/api/system/menu/delete?menu_id=${id}`
   })
 }
 
 // 获取操作日志列表
 export function fetchGetOperationLogList(params: Api.OperationLog.OperationLogSearchParams) {
   return request.get<Api.OperationLog.OperationLogList>({
-    url: '/api/operation-log',
+    url: '/api/system/operation-log',
     params
   })
 }
 
 export function fetchAiEdit(formData: any) {
   return request.post<any>({
-    url: `/api/ai/add`,
+    url: `/api/system/ai/add`,
     data: {
       ...formData
     }

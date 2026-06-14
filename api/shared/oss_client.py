@@ -5,7 +5,7 @@ from io import BytesIO
 import boto3
 from botocore.client import Config
 
-from core.settings import settings
+from core.config import settings
 
 
 class OssClient:

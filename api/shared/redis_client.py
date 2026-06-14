@@ -3,8 +3,8 @@ from typing import Any, Optional
 
 from redis.asyncio import Redis, ConnectionPool
 
-from core.settings import settings
-from core.log_config import cache_logger
+from core.config import settings
+from shared.log_config import cache_logger
 
 
 class RedisCache:

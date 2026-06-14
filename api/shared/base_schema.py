@@ -8,9 +8,3 @@ class SuccessResponse(BaseModel, Generic[T]):
     code: int = 200
     message: str = "操作成功"
     data: Optional[T] = None
-
-
-class ErrorResponse(BaseModel, Generic[T]):
-    code: int = 500
-    message: str = "操作失败"
-    data: Optional[T] = None

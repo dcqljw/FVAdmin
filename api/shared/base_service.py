@@ -1,4 +1,4 @@
-from custom_exception import CustomException
+from core.exceptions import CustomException
 
 
 class BaseService:
