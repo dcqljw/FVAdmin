@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Security
 from models.user_model import User
 from router.deps import verify_token_dep, permission_check, get_current_user
 from schemas.response import SuccessResponse
-from schemas.menu import MenuCreateSchema, AddRoleMenuSchema
+from schemas.menu import MenuCreateSchema, MenuEditSchema, AddRoleMenuSchema
 from services import menu_service
 
 router = APIRouter(prefix="/menu", tags=["菜单管理"])
@@ -58,11 +58,11 @@ async def add_menu(
 
 @router.post("/edit")
 async def edit_menu(
-    menu_in: MenuCreateSchema,
+    menu_in: MenuEditSchema,
     current_user: User = Security(permission_check, scopes=['menu:edit']),
 ):
     await menu_service.update_menu(
-        name=menu_in.name, path=menu_in.path, meta=menu_in.meta,
+        menu_id=menu_in.id, name=menu_in.name, path=menu_in.path, meta=menu_in.meta,
         component=menu_in.component, sort=menu_in.sort,
         status=menu_in.status, auth_mark=menu_in.auth_mark, menu_type=menu_in.type,
     )

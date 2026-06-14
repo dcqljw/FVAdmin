@@ -10,8 +10,7 @@ class MenuType(Enum):
     DIRECTORY = 3
 
 
-class MenuCreateSchema(BaseModel):
-    parent_id: int
+class MenuBaseSchema(BaseModel):
     name: str
     path: str
     meta: dict[str, Any]
@@ -20,6 +19,14 @@ class MenuCreateSchema(BaseModel):
     status: bool
     auth_mark: str
     type: int
+
+
+class MenuCreateSchema(MenuBaseSchema):
+    parent_id: int
+
+
+class MenuEditSchema(MenuBaseSchema):
+    id: int
 
 
 class AddRoleMenuSchema(BaseModel):

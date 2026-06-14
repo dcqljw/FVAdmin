@@ -68,6 +68,9 @@ def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
                     "type": 2  # 标记为按钮类型（可选）
                 })
 
+            # 对 authList 按 sort 升序排序
+            auth_list.sort(key=lambda x: x.get("sort", 0))
+
             # 将 authList 挂载到 meta 下（覆盖/合并原有 authList）
             menu_node["meta"]["authList"] = auth_list
 

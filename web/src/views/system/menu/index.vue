@@ -426,13 +426,13 @@
    * @param formData 表单数据
    */
   const handleSubmit = async (formData: MenuFormData): Promise<void> => {
-    const form = {
-      parent_id: formData.id,
-      name: formData.menuType === 'menu' ? formData.label : formData.authName,
+    const isMenu = formData.menuType === 'menu'
+    const form: Record<string, any> = {
+      name: isMenu ? formData.label : formData.authName,
       path: formData.path || '',
       meta: {
-        title: formData.menuType === 'menu' ? formData.name || '' : formData.authName,
-        icon: formData.menuType === 'menu' ? formData.icon || '' : formData.authIcon || '',
+        title: isMenu ? formData.name || '' : formData.authName,
+        icon: isMenu ? formData.icon || '' : formData.authIcon || '',
         isHide: formData.isHide,
         keepAlive: formData.keepAlive,
         isIframe: formData.isIframe,
@@ -445,14 +445,16 @@
         activePath: formData.activePath || ''
       },
       component: formData.component || '',
-      sort: formData.menuType === 'menu' ? formData.sort || 1 : formData.authSort || 1,
+      sort: isMenu ? formData.sort || 1 : formData.authSort || 1,
       status: formData.isEnable ?? true,
       auth_mark: formData.authLabel || '',
-      type: formData.menuType === 'menu' ? 1 : 2
+      type: isMenu ? 1 : 2
     }
     if (lockMenuType.value) {
+      form.id = formData.id
       await fetchEditMenu(form)
     } else {
+      form.parent_id = formData.parent_id || 0
       await fetchAddMenu(form)
     }
     await getMenuList()

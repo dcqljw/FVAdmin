@@ -102,6 +102,7 @@ class MenuService(BaseService):
 
     async def update_menu(
         self,
+        menu_id: int,
         name: str,
         path: str,
         meta: dict,
@@ -111,20 +112,20 @@ class MenuService(BaseService):
         auth_mark: str,
         menu_type: int,
     ) -> Menu:
-        menu = await Menu.get_or_none(name=name)
+        menu = await Menu.get_or_none(id=menu_id)
         if not menu:
-            self._not_found("菜单", name)
+            self._not_found("菜单", str(menu_id))
+
+        # 菜单与按钮共享的字段
+        menu.name = name
+        menu.meta = meta
+        menu.sort = sort
 
         if menu_type == 1:
-            menu.name = name
             menu.path = path
-            menu.meta = meta
             menu.component = component
-            menu.sort = sort
             menu.status = status
         else:
-            menu.name = name
-            menu.meta = meta
             menu.auth_mark = auth_mark
 
         await menu.save()

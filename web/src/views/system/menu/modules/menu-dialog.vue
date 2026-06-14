@@ -318,8 +318,7 @@
    * 是否禁用菜单类型切换
    */
   const disableMenuType = computed(() => {
-    if (isEdit.value) return true
-    return !isEdit.value && form.menuType === 'menu' && props.lockType
+    return isEdit.value || (form.menuType === 'menu' && props.lockType)
   })
 
   /**
@@ -338,12 +337,13 @@
     if (props.lockType) {
       isEdit.value = true
     } else {
-      form.id = props.editData.id
+      // 新增子菜单/权限：editData 是父级，记录到 parent_id
+      form.parent_id = props.editData.id
       return
     }
+    const row = props.editData
+    form.id = row.id || 0
     if (form.menuType === 'menu') {
-      const row = props.editData
-      form.id = row.id || 0
       form.name = formatMenuTitle(row.meta?.title || '')
       form.path = row.path || ''
       form.label = row.name || ''
@@ -363,7 +363,6 @@
       form.activePath = row.meta?.activePath || ''
       form.isFullPage = row.meta?.isFullPage ?? false
     } else {
-      const row = props.editData
       form.authName = row.title || ''
       form.authLabel = row.authMark || ''
       form.authIcon = row.icon || ''
@@ -379,10 +378,6 @@
 
     try {
       await formRef.value.validate()
-      const row = props.editData
-      if (row) {
-        form.parent_id = row.id
-      }
       emit('submit', { ...form })
       ElMessage.success(`${isEdit.value ? '编辑' : '新增'}成功`)
       handleCancel()
