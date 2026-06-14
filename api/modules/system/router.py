@@ -172,9 +172,25 @@ async def edit_role(
     return SuccessResponse(data={"msg": "修改角色成功"})
 
 
-@role_router.post("/:id/user")
-async def role_user():
-    pass
+@role_router.get("/{role_id}/user")
+async def role_user(
+        role_id: int,
+        user: User = Depends(get_current_user),
+        current: int = 1,
+        size: int = 10,
+        username: str = None,
+        phone: str = None,
+        email: str = None,
+):
+    """
+    根据角色ID返回该角色下的所有用户
+    """
+    user_list, total = await user_service.list_users(
+        role_id=role_id,
+        current=current, size=size,
+        username=username, phone=phone, email=email,
+    )
+    return SuccessResponse(data={"records": user_list, "total": total})
 
 
 # ========== Menu ==========

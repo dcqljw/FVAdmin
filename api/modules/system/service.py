@@ -51,10 +51,12 @@ class UserService(BaseService):
         username: Optional[str] = None,
         phone: Optional[str] = None,
         email: Optional[str] = None,
+        role_id: Optional[int] = None,
     ) -> Tuple[List[dict], int]:
         users, total = await user_repo.list_paginated(
             current=current, size=size,
             username=username, phone=phone, email=email,
+            role_id=role_id,
         )
 
         records = []

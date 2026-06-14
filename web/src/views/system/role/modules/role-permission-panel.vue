@@ -66,8 +66,26 @@
     </ElTabPane>
 
     <ElTabPane label="角色用户" name="users">
-      <div class="flex items-center justify-center h-[300px]">
-        <ElEmpty description="暂无用户数据" />
+      <div class="role-users-tab">
+        <ArtSearchBar
+          v-model="userSearch"
+          :items="userSearchItems"
+          :label-width="'60px'"
+          :show-expand="false"
+          class="flex-shrink-0"
+          @search="handleUserSearch"
+          @reset="handleUserReset"
+        />
+        <ArtTable
+          :loading="usersLoading"
+          :data="usersData"
+          :columns="usersColumns"
+          :pagination="usersPagination"
+          :show-table-header="false"
+          class="flex-1 min-h-0"
+          @pagination:size-change="handleUserSizeChange"
+          @pagination:current-change="handleUserCurrentChange"
+        />
       </div>
     </ElTabPane>
   </ElTabs>
@@ -75,8 +93,17 @@
 
 <script setup lang="ts">
   import ArtTable from '@/components/core/tables/art-table/index.vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
+  import ArtAvatar from '@/components/core/base/art-avatar/index.vue'
   import { formatMenuTitle } from '@/utils/router'
-  import { fetchGetMenuList, fetchGetMenuByRole, fetchSetMenuByRole } from '@/api/system-manage'
+  import { useTable } from '@/hooks/core/useTable'
+  import {
+    fetchGetMenuList,
+    fetchGetMenuByRole,
+    fetchSetMenuByRole,
+    fetchGetUserListByRole
+  } from '@/api/system-manage'
+  import { ElTag } from 'element-plus'
   import type { AppRouteRecord } from '@/types/router'
 
   defineOptions({ name: 'RolePermissionPanel' })
@@ -112,6 +139,32 @@
   const checkedMenuIds = ref(new Set<number>())
   const checkedAuthIds = ref(new Set<number>())
   const activeTab = ref('permission')
+  const userSearch = ref({ username: '', phone: '', email: '' })
+
+  // ArtSearchBar 表单配置：用户名 / 手机号 / 邮箱
+  const userSearchItems = [
+    {
+      key: 'username',
+      label: '用户名',
+      type: 'input',
+      placeholder: '请输入用户名',
+      props: { clearable: true }
+    },
+    {
+      key: 'phone',
+      label: '手机号',
+      type: 'input',
+      placeholder: '请输入手机号',
+      props: { maxlength: 11, clearable: true }
+    },
+    {
+      key: 'email',
+      label: '邮箱',
+      type: 'input',
+      placeholder: '请输入邮箱',
+      props: { clearable: true }
+    }
+  ]
 
   // 泛型 Set 操作 helper：因 Set.add/delete 是原地突变，需「构造新 Set 再赋值」触发 Vue 响应式
   const check = (set: Ref<Set<number>>, id: number) => {
@@ -393,6 +446,82 @@
     }
   }
 
+  // ============ 角色用户列表 ============
+
+  type UserListItem = Api.SystemManage.UserListItem
+
+  // 把 roleId 闭包进 apiFn：每次请求都带当前 props.roleData.id
+  // 给 params 显式标注类型，让 useTable 的 TApiFn 泛型能正确推断 TRecord=UserListItem
+  const {
+    data: usersData,
+    loading: usersLoading,
+    columns: usersColumns,
+    pagination: usersPagination,
+    searchParams: usersSearchParams,
+    getData: getUsersByPage,
+    handleSizeChange: handleUserSizeChange,
+    handleCurrentChange: handleUserCurrentChange,
+    resetSearchParams: resetUserSearchParams
+  } = useTable({
+    core: {
+      apiFn: (params: Api.SystemManage.UserSearchParams) =>
+        fetchGetUserListByRole(props.roleData!.id, params),
+      apiParams: {
+        current: 1,
+        size: 10
+      },
+      // 避免在 props.roleData 还未就绪时拉取
+      immediate: false,
+      columnsFactory: () => [
+        {
+          prop: 'username',
+          label: '用户',
+          minWidth: 220,
+          formatter: (row: UserListItem) =>
+            h('div', { class: 'user flex-c' }, [
+              h('div', { class: 'size-9.5 shrink-0' }, [
+                h(ArtAvatar, { name: row.nickname || row.username, size: 38 })
+              ]),
+              h('div', { class: 'ml-2' }, [
+                h('p', { class: 'user-name' }, row.nickname ? row.nickname : row.username),
+                h('p', { class: 'email' }, row.email)
+              ])
+            ])
+        },
+        { prop: 'phone', label: '手机号', minWidth: 120 },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 80,
+          formatter: (row: UserListItem) => {
+            const statusConfig =
+              row.status === '1'
+                ? { type: 'success' as const, text: '启用' }
+                : { type: 'danger' as const, text: '禁用' }
+            return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
+          }
+        },
+        { prop: 'created_at', label: '创建日期', minWidth: 160 }
+      ]
+    }
+  })
+
+  const handleUserSearch = async () => {
+    // 把内联筛选条件合并进 useTable 的 searchParams，触发带分页重置的搜索
+    Object.assign(usersSearchParams, {
+      username: userSearch.value.username || undefined,
+      phone: userSearch.value.phone || undefined,
+      email: userSearch.value.email || undefined
+    })
+    await getUsersByPage()
+  }
+
+  const handleUserReset = async () => {
+    // ArtSearchBar 内部已经会把 modelValue 全部置为 undefined；下游 handleUserSearch
+    // 用 `|| undefined` 把空串与 undefined 视为一致，所以无需再写一次 userSearch。
+    await resetUserSearchParams()
+  }
+
   // 首次进入 / 切换角色：先保证菜单树已加载，再回填权限
   watch(
     () => props.roleData?.id,
@@ -405,6 +534,9 @@
         await loadMenuList()
       }
       await loadRolePermissions(newId)
+      // 切换角色时重置筛选并刷新用户列表
+      userSearch.value = { username: '', phone: '', email: '' }
+      await resetUserSearchParams()
     },
     { immediate: true }
   )
@@ -445,5 +577,12 @@
   /* 补偿 ArtTable 全局 margin-top: 10px，防止底部溢出 */
   :deep(.art-table) {
     height: calc(100% - 86px) !important;
+  }
+
+  /* 角色用户 tab：搜索栏 + 表格用 flex 列布局，
+     搜索栏高度不固定，避免硬编码像素偏移。
+     覆盖上面那条全局 art-table 高度，让 flex 决定尺寸。 */
+  .role-users-tab {
+    height: calc(100% - 40px);
   }
 </style>

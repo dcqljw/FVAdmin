@@ -19,6 +19,7 @@ class UserRepository(BaseRepository[User]):
         username: Optional[str] = None,
         phone: Optional[str] = None,
         email: Optional[str] = None,
+        role_id: Optional[int] = None,
     ) -> Tuple[List[User], int]:
         query = User.all()
         if username:
@@ -27,6 +28,8 @@ class UserRepository(BaseRepository[User]):
             query = query.filter(phone__contains=phone)
         if email:
             query = query.filter(email__contains=email)
+        if role_id:
+            query = query.filter(roles__id=role_id)
 
         total = await query.count()
         users = await query.offset((current - 1) * size).limit(size).prefetch_related("roles").all()

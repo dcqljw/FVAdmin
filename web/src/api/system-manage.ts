@@ -9,6 +9,14 @@ export function fetchGetUserList(params: Api.SystemManage.UserSearchParams) {
   })
 }
 
+// 根据角色ID获取该角色下的用户列表
+export function fetchGetUserListByRole(roleId: number, params: Api.SystemManage.UserSearchParams) {
+  return request.get<Api.SystemManage.UserList>({
+    url: `/api/system/role/${roleId}/user`,
+    params
+  })
+}
+
 // 获取角色列表
 export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   return request.get<Api.SystemManage.RoleList>({
