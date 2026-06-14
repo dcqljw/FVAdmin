@@ -130,9 +130,10 @@
           prop: 'status',
           label: '状态',
           formatter: (row) => {
-            const statusConfig = row.status === '1'
-              ? { type: 'success' as const, text: '启用' }
-              : { type: 'danger' as const, text: '禁用' }
+            const statusConfig =
+              row.status === '1'
+                ? { type: 'success' as const, text: '启用' }
+                : { type: 'danger' as const, text: '禁用' }
             return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
           }
         },
