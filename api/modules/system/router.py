@@ -45,7 +45,7 @@ async def get_user_list(
 @user_router.post("/add")
 async def add_user(
         user_in: UserCreateSchema,
-        current_user: User = Security(permission_check, scopes=['user:add']),
+        current_user: User = Security(permission_check, scopes=['system:user:add']),
 ):
     await user_service.create_user(
         username=user_in.username, password=user_in.password,
@@ -58,7 +58,7 @@ async def add_user(
 @user_router.post('/edit')
 async def edit_user(
         user_in: UserCreateSchema,
-        current_user: User = Security(permission_check, scopes=['user:edit']),
+        current_user: User = Security(permission_check, scopes=['system:user:edit']),
 ):
     await user_service.update_user(
         username=user_in.username, nickname=user_in.nickname,
@@ -97,7 +97,7 @@ async def upload_avatar(
 @user_router.post('/delete')
 async def delete_user(
         user_id: int,
-        current_user: User = Security(permission_check, scopes=['user:delete']),
+        current_user: User = Security(permission_check, scopes=['system:user:delete']),
 ):
     await user_service.delete_user(user_id=user_id, current_user=current_user)
     return SuccessResponse(data={"msg": "删除用户成功"})
@@ -134,6 +134,7 @@ async def get_role_list(
         name: str = None,
         code: str = None,
         description: str = None,
+        current_user: User = Security(permission_check, scopes=['system:role:list']),
 ):
     role_list, total = await role_service.list_roles(
         current=current, size=size, name=name, code=code, description=description,
@@ -144,7 +145,7 @@ async def get_role_list(
 @role_router.post("/add")
 async def add_role(
         role: RoleCreateSchema,
-        current_user: User = Security(permission_check, scopes=['role:add']),
+        current_user: User = Security(permission_check, scopes=['system:role:add']),
 ):
     await role_service.create_role(
         name=role.name, code=role.code,
@@ -156,7 +157,7 @@ async def add_role(
 @role_router.post('/delete')
 async def delete_role(
         role_id: int,
-        current_user: User = Security(permission_check, scopes=['role:delete']),
+        current_user: User = Security(permission_check, scopes=['system:role:delete']),
 ):
     await role_service.delete_role(role_id=role_id, current_user=current_user)
     return SuccessResponse(data={"msg": "删除角色成功"})
@@ -165,7 +166,7 @@ async def delete_role(
 @role_router.post('/edit')
 async def edit_role(
         role_in: RoleCreateSchema,
-        current_user: User = Security(permission_check, scopes=['role:edit']),
+        current_user: User = Security(permission_check, scopes=['system:role:edit']),
 ):
     await role_service.update_role(
         code=role_in.code, name=role_in.name,
@@ -199,7 +200,7 @@ async def role_user(
 
 @menu_router.get("")
 async def menu_list(
-        current_user: User = Security(permission_check, scopes=['menu:list']),
+        current_user: User = Security(permission_check, scopes=['system:menu:list']),
 ):
     """
     获取全量菜单树（菜单管理页使用）
@@ -231,7 +232,7 @@ async def get_checked(role_id: int, uid: str = Depends(verify_token_dep)):
 @menu_router.post("/add")
 async def add_menu(
         menu: MenuCreateSchema,
-        current_user: User = Security(permission_check, scopes=['menu:add']),
+        current_user: User = Security(permission_check, scopes=['system:menu:add']),
 ):
     await menu_service.create_menu(
         parent_id=menu.parent_id, name=menu.name, path=menu.path,
@@ -244,7 +245,7 @@ async def add_menu(
 @menu_router.post("/edit")
 async def edit_menu(
         menu_in: MenuEditSchema,
-        current_user: User = Security(permission_check, scopes=['menu:edit']),
+        current_user: User = Security(permission_check, scopes=['system:menu:edit']),
 ):
     await menu_service.update_menu(
         menu_id=menu_in.id, name=menu_in.name, path=menu_in.path, meta=menu_in.meta,
@@ -257,7 +258,7 @@ async def edit_menu(
 @menu_router.post("/add_menu_permission")
 async def add_menu_permission(
         role_menu: AddRoleMenuSchema,
-        current_user: User = Security(permission_check, scopes=['role:edit']),
+        current_user: User = Security(permission_check, scopes=['system:menu:edit']),
 ):
     """
     角色添加菜单权限
@@ -271,7 +272,7 @@ async def add_menu_permission(
 @menu_router.post("/delete")
 async def delete_menu(
         menu_id: int,
-        current_user: User = Security(permission_check, scopes=['menu:delete']),
+        current_user: User = Security(permission_check, scopes=['system:menu:delete']),
 ):
     await menu_service.delete_menu(menu_id=menu_id)
     return SuccessResponse(data={"message": "删除菜单成功"})

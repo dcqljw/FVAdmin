@@ -1,13 +1,11 @@
 import os.path
-import random
-import string
 from io import BytesIO
 from typing import List, Optional, Tuple
 
 from shared.base_service import BaseService, SUPERADMIN_USERNAME, SUPERADMIN_ROLE_CODE
 from shared.log_config import api_logger
 from shared.oss_client import oss_client
-from shared.utils import convert_menu_to_tree
+from shared.utils import convert_menu_to_tree, generate_random_password
 from core.security import get_password_hash, verify_password
 from core.config import settings
 from core.exceptions import CustomException
@@ -181,8 +179,7 @@ class UserService(BaseService):
         if user.username == SUPERADMIN_USERNAME:
             self._forbidden("超级管理员密码不允许重置")
 
-        random_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
-        new_password = "".join(random.choices(random_str, k=8))
+        new_password = generate_random_password()
         user.password = get_password_hash(new_password)
         await user.save()
 

@@ -1,3 +1,13 @@
+import random
+import string
+
+
+def generate_random_password(length: int = 8) -> str:
+    """生成指定长度的随机密码（大小写字母 + 数字）"""
+    chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
+    return "".join(random.choices(chars, k=length))
+
+
 def convert_menu_to_tree(menu_list: list[dict]) -> list[dict]:
     """
     将扁平的菜单列表转换为嵌套的树形结构

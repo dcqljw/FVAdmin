@@ -20,6 +20,9 @@ uv run aerich migrate --name "description"  # Create migration
 uv run aerich upgrade                        # Apply migrations
 uv run aerich downgrade                      # Rollback migration
 uv run aerich history                        # View migration history
+
+# Data seeding (menus & roles, run after aerich upgrade on fresh DB)
+uv run python seed.py
 ```
 
 ## Architecture
@@ -74,12 +77,17 @@ Environment variables loaded from `.env` and `.env.dev`:
 - OSS/S3: `OSS_URL`, `OSS_KEY`, `OSS_SECRET`, `OSS_BUCKET`
 - Cache TTL: `CACHE_PERMISSION_TTL`, `CACHE_MENU_TTL`
 
-## Bootstrap (`init_core.py`)
+## Bootstrap
 
-On startup, creates:
-1. Admin user with random password (logged to console)
-2. Default menu structure with permission marks
-3. Admin role with all menu permissions
+应用启动时（`init_core.py` → `init_data()`）：
+- 创建超级管理员用户（随机密码，输出到控制台）
+- 自动关联 R_ADMIN 角色（幂等）
+
+数据初始化脚本（`seed.py`，全新环境首次部署时手动执行）：
+- 创建默认菜单结构（含权限按钮）
+- 创建超级管理员角色（R_ADMIN）并关联全部菜单
+
+**全新环境部署顺序**：`aerich upgrade` → `python seed.py` → 启动应用
 
 ## Permission System
 

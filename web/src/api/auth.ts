@@ -30,7 +30,7 @@ export function fetchGetUserInfo() {
 
 export function fetchEditPassword(fromData: any) {
   return request.post<any>({
-    url: '/api/user/edit-password',
+    url: '/api/system/user/edit-password',
     data: {
       ...fromData
     }
