@@ -4,7 +4,7 @@ import string
 from io import BytesIO
 from typing import List, Optional, Tuple
 
-from shared.base_service import BaseService
+from shared.base_service import BaseService, SUPERADMIN_USERNAME, SUPERADMIN_ROLE_CODE
 from shared.log_config import api_logger
 from shared.oss_client import oss_client
 from shared.utils import convert_menu_to_tree
@@ -77,6 +77,8 @@ class UserService(BaseService):
             phone: Optional[str] = None,
             avatar: Optional[str] = None,
     ) -> User:
+        self._ensure_no_admin_role_assign(role_codes)
+
         existing = await user_repo.find_by_username(username)
         if existing:
             self._already_exists("用户", username)
@@ -105,6 +107,9 @@ class UserService(BaseService):
             phone: Optional[str] = None,
             avatar: Optional[str] = None,
     ) -> User:
+        self._ensure_not_superadmin(username)
+        self._ensure_no_admin_role_assign(role_codes)
+
         user = await user_repo.find_by_username(username)
         if not user:
             self._not_found("用户", username)
@@ -147,7 +152,7 @@ class UserService(BaseService):
         if not user:
             self._not_found("用户", str(user_id))
 
-        if user.username == "admin":
+        if user.username == SUPERADMIN_USERNAME:
             self._forbidden("超级管理员无法删除")
 
         deleted_username = user.username
@@ -172,6 +177,9 @@ class UserService(BaseService):
         user = await user_repo.get_by_id(user_id)
         if not user:
             self._not_found("用户", str(user_id))
+
+        if user.username == SUPERADMIN_USERNAME:
+            self._forbidden("超级管理员密码不允许重置")
 
         random_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
         new_password = "".join(random.choices(random_str, k=8))
@@ -232,6 +240,8 @@ class RoleService(BaseService):
     async def create_role(
             self, name: str, code: str, description: str, enabled: bool
     ) -> Role:
+        self._ensure_not_admin_role(code)
+
         existing = await role_repo.find_by_name_or_code(name, code)
         if existing:
             self._already_exists("角色", f"{name} 或 {code}")
@@ -243,15 +253,14 @@ class RoleService(BaseService):
         return role
 
     async def delete_role(self, role_id: int, current_user: User) -> str:
-        if role_id == current_user.id:
-            self._forbidden("不能删除自己")
-
         role = await role_repo.get_by_id(role_id)
         if not role:
             self._not_found("角色", str(role_id))
 
-        if role.code == "R_ADMIN":
-            self._forbidden("超级管理员无法删除")
+        self._ensure_not_admin_role(role.code)
+
+        if await current_user.roles.filter(id=role_id).exists():
+            self._forbidden("不能删除自己拥有的角色")
 
         deleted_name = role.name
         await role.delete()
@@ -265,6 +274,8 @@ class RoleService(BaseService):
         role = await role_repo.find_by_code(code)
         if not role:
             self._not_found("角色", code)
+
+        self._ensure_not_admin_role(role.code)
 
         role.name = name
         role.description = description
@@ -301,7 +312,7 @@ class MenuService(BaseService):
         - admin：返回全部
         - 普通用户：按角色关联的菜单过滤，并自动补全祖先链，防止父菜单未分配时子菜单消失
         """
-        if user.username == "admin":
+        if user.username == SUPERADMIN_USERNAME:
             menus = await menu_repo.get_all_sorted()
         else:
             roles = await user.roles.all().prefetch_related("menus")
@@ -420,7 +431,12 @@ class MenuService(BaseService):
     async def assign_menus_to_role(
             self, role_id: int, menu_ids: List[int]
     ) -> Role:
-        role = await Role.get(id=role_id)
+        role = await role_repo.get_by_id(role_id)
+        if not role:
+            self._not_found("角色", str(role_id))
+
+        self._ensure_not_admin_role(role.code)
+
         await role.menus.clear()
         menus = await menu_repo.get_by_ids(menu_ids)
         await role.menus.add(*menus)

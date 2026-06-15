@@ -255,7 +255,10 @@ async def edit_menu(
 
 
 @menu_router.post("/add_menu_permission")
-async def add_menu_permission(role_menu: AddRoleMenuSchema):
+async def add_menu_permission(
+        role_menu: AddRoleMenuSchema,
+        current_user: User = Security(permission_check, scopes=['role:edit']),
+):
     """
     角色添加菜单权限
     """

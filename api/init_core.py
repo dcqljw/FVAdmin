@@ -2,6 +2,7 @@ import random
 import string
 
 from core.security import get_password_hash
+from shared.base_service import SUPERADMIN_USERNAME, SUPERADMIN_ROLE_CODE
 from modules.system.models import Menu
 from modules.system.models import Role
 from modules.system.models import User
@@ -9,14 +10,14 @@ from shared.log_config import app_logger
 
 
 async def create_superuser():
-    user = await User.get_or_none(username="admin")
+    user = await User.get_or_none(username=SUPERADMIN_USERNAME)
     if not user:
         app_logger.info("创建超级管理员")
         random_str = string.ascii_lowercase + string.ascii_uppercase + string.digits
         password = "".join(random.choices(random_str, k=8))
         app_logger.info(f"超级管理员初始密码：{password}")
         new_password = get_password_hash(password)
-        await User.create(username="admin", password=new_password, nickname="管理员", phone="12345678901",
+        await User.create(username=SUPERADMIN_USERNAME, password=new_password, nickname="管理员", phone="12345678901",
                           email="admin@admin.com", avatar='')
         app_logger.info("超级管理员创建成功")
     else:
@@ -121,12 +122,12 @@ async def create_menu():
 
 
 async def create_role():
-    role = await Role.get_or_none(name="admin")
+    role = await Role.get_or_none(code=SUPERADMIN_ROLE_CODE)
     if not role:
         app_logger.info("创建超级管理员角色")
-        admin_role = await Role.create(name="admin", code="ADMIN", description="超级管理员", enabled=True)
+        admin_role = await Role.create(name="超级管理员", code=SUPERADMIN_ROLE_CODE, description="超级管理员", enabled=True)
         await admin_role.menus.add(*await Menu.all())
-        user = await User.filter(username="admin").first()
+        user = await User.filter(username=SUPERADMIN_USERNAME).first()
         await user.roles.add(admin_role)
         app_logger.info("超级管理员角色创建成功")
     else:
