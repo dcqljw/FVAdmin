@@ -66,7 +66,7 @@
     </ElTabPane>
 
     <ElTabPane label="角色用户" name="users">
-      <div class="role-users-tab">
+      <div v-if="activeTab === 'users'" class="role-users-tab">
         <ArtSearchBar
           v-model="userSearch"
           :items="userSearchItems"
