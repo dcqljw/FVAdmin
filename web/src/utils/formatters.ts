@@ -6,7 +6,6 @@
 
 import { h } from 'vue'
 import { ElTag } from 'element-plus'
-import type { TagType } from '@/views/system/operation-log/utils'
 
 /** 用户启用状态值 */
 export const USER_STATUS = {
@@ -26,14 +25,4 @@ export const formatUserStatusTag = (status: number) => {
       ? { type: 'success' as const, text: '启用' }
       : { type: 'danger' as const, text: '禁用' }
   return h(ElTag, { type: config.type }, () => config.text)
-}
-
-/**
- * 获取状态对应的标签类型
- *
- * @param status 状态值
- * @returns Element Plus 标签类型
- */
-export const getStatusTagType = (status: number): TagType => {
-  return status === USER_STATUS.ENABLED ? 'success' : 'danger'
 }

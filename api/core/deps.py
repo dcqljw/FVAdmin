@@ -39,6 +39,9 @@ async def get_current_user(uid: str = Depends(verify_token_dep)):
 
 
 async def permission_check(security_scopes: SecurityScopes, user: User = Depends(get_current_user)) -> User:
+    # 没有指定 scopes → 只需登录即可
+    if not security_scopes.scopes:
+        return user
     menus = await user.roles.all().prefetch_related("menus")
     for i in menus:
         for j in i.menus:

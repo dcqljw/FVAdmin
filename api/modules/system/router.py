@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Security, UploadFile
 
-from core.deps import verify_token_dep, get_current_user, permission_check
+from core.deps import verify_token_dep, permission_check
 from shared.base_schema import SuccessResponse
 from modules.system.models import User
 from modules.system.schemas import (
@@ -19,20 +19,20 @@ menu_router = APIRouter(prefix="/menu", tags=["菜单管理"])
 # ========== User ==========
 
 @user_router.get("/info")
-async def get_user_info(user: User = Depends(get_current_user)):
-    user_dict = await user_service.get_user_info(user)
+async def get_user_info(current_user: User = Security(permission_check)):
+    user_dict = await user_service.get_user_info(current_user)
     return SuccessResponse(data=user_dict)
 
 
 @user_router.get("")
 async def get_user_list(
-        user: User = Depends(get_current_user),
         current: int = 1,
         size: int = 10,
         username: str = None,
         phone: str = None,
         email: str = None,
         status: int = None,
+        current_user: User = Security(permission_check, scopes=['system:user:list'])
 ):
     user_list, total = await user_service.list_users(
         current=current, size=size,
@@ -71,7 +71,7 @@ async def edit_user(
 @user_router.post('/edit-profile')
 async def edit_profile(
         user_in: UserCreateSchema,
-        current_user: User = Depends(get_current_user),
+        current_user: User = Security(permission_check),
 ):
     await user_service.update_profile(
         user=current_user, nickname=user_in.nickname,
@@ -83,7 +83,7 @@ async def edit_profile(
 @user_router.post('/upload_avatar')
 async def upload_avatar(
         file: UploadFile,
-        current_user: User = Depends(get_current_user),
+        current_user: User = Security(permission_check),
 ):
     file_content = await file.read()
     avatar_url = await user_service.upload_avatar(
@@ -106,7 +106,7 @@ async def delete_user(
 @user_router.post('/edit-password')
 async def edit_password(
         password_in: EditPasswordSchema,
-        current_user: User = Depends(get_current_user),
+        current_user: User = Security(permission_check),
 ):
     await user_service.change_password(
         user=current_user,
@@ -177,7 +177,7 @@ async def edit_role(
 @role_router.get("/{role_id}/user")
 async def role_user(
         role_id: int,
-        user: User = Depends(get_current_user),
+        current_user: User = Security(permission_check),
         current: int = 1,
         size: int = 10,
         username: str = None,
@@ -210,7 +210,7 @@ async def menu_list(
 
 
 @menu_router.get("/route")
-async def route_menu_list(current_user: User = Depends(get_current_user)):
+async def route_menu_list(current_user: User = Security(permission_check)):
     """
     获取当前用户有权限的菜单树（侧边栏导航/路由注册使用）
     只需登录即可，返回按角色过滤后的菜单，自动补全祖先链

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Security
 
-from core.deps import get_current_user
+from core.deps import permission_check
 from shared.base_schema import SuccessResponse
 from modules.system.models import User
 from modules.log.service import operation_log_service
@@ -18,7 +18,7 @@ async def get_operation_log_list(
     operation: str = None,
     start_time: str = None,
     end_time: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Security(permission_check),
 ):
     logs, total = await operation_log_service.list_logs(
         current=current,
