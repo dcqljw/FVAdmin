@@ -50,6 +50,7 @@ src/
 ### Key Patterns
 
 **Path Aliases** (defined in `vite.config.ts` and `tsconfig.json`):
+
 - `@` → `src/`
 - `@views` → `src/views/`
 - `@utils` → `src/utils/`
@@ -57,17 +58,17 @@ src/
 - `@styles` → `src/assets/styles/`
 - `@imgs`, `@icons` → asset directories
 
-**Auto-Imports** (via unplugin-auto-import):
-Vue, Vue Router, Pinia, VueUse, and Element Plus APIs are auto-imported. No need to import `ref`, `computed`, `ElMessage`, etc.
+**Auto-Imports** (via unplugin-auto-import): Vue, Vue Router, Pinia, VueUse, and Element Plus APIs are auto-imported. No need to import `ref`, `computed`, `ElMessage`, etc.
 
-**API Type Definitions**:
-Use the global `Api` namespace (defined in `src/types/api/api.d.ts`):
+**API Type Definitions**: Use the global `Api` namespace (defined in `src/types/api/api.d.ts`):
+
 ```typescript
 const params: Api.Auth.LoginParams = { username: 'admin', password: '123456' }
 const response: Api.SystemManage.UserList = await fetchGetUserList(params)
 ```
 
 **HTTP Client** (`src/utils/http/index.ts`):
+
 - Based on Axios with request/response interceptors
 - Auto-attaches Authorization header from user store
 - Handles 401 errors with auto-logout (debounced)
@@ -75,17 +76,20 @@ const response: Api.SystemManage.UserList = await fetchGetUserList(params)
 - Usage: `import request from '@/utils/http'`
 
 **Routing**:
+
 - Static routes (`src/router/routes/staticRoutes.ts`): Login, error pages, iframe
 - Dynamic routes: Loaded from backend API after login
 - Route guards (`src/router/guards/`): Handle auth, permission checks, dynamic registration
 - Hash-based routing (`createWebHashHistory`)
 
 **State Management** (Pinia with persistedstate):
+
 - Stores: `user`, `menu`, `setting`, `worktab`, `table`
 - Persisted to localStorage with versioned keys: `sys-v{version}-{storeId}`
 - Access stores: `import { useUserStore } from '@/store/modules/user'`
 
 **Internationalization**:
+
 - Languages: Chinese (zh), English (en)
 - Use `$t('key')` globally or `useI18n()` in components
 - Language files: `src/locales/langs/zh.json` and `en.json`
@@ -93,6 +97,7 @@ const response: Api.SystemManage.UserList = await fetchGetUserList(params)
 ## Environment Variables
 
 Defined in `.env.development` and `.env.production`:
+
 - `VITE_API_URL`: API base URL
 - `VITE_API_PROXY_URL`: Proxy target for dev server
 - `VITE_BASE_URL`: App deployment base path
@@ -111,9 +116,10 @@ Defined in `.env.development` and `.env.production`:
 ## SCSS Setup
 
 Global SCSS imports (via `vite.config.ts`):
+
 ```scss
-@use "@styles/core/el-light.scss" as *;
-@use "@styles/core/mixin.scss" as *;
+@use '@styles/core/el-light.scss' as *;
+@use '@styles/core/mixin.scss' as *;
 ```
 
 These are available in all Vue component `<style lang="scss">` blocks without explicit import.

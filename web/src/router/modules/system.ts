@@ -17,7 +17,13 @@ export const systemRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.system.user',
         keepAlive: true,
-        roles: ['R_SUPER', 'R_ADMIN']
+        roles: ['R_SUPER', 'R_ADMIN'],
+        authList: [
+          { id: 4, title: '新增用户', authMark: 'system:user:add' },
+          { id: 5, title: '编辑用户', authMark: 'system:user:edit' },
+          { id: 6, title: '删除用户', authMark: 'system:user:delete' },
+          { id: 7, title: '重置密码', authMark: 'system:user:reset-password' }
+        ]
       }
     },
     {
@@ -27,7 +33,12 @@ export const systemRoutes: AppRouteRecord = {
       meta: {
         title: 'menus.system.role',
         keepAlive: true,
-        roles: ['R_SUPER']
+        roles: ['R_SUPER'],
+        authList: [
+          { id: 8, title: '新增角色', authMark: 'system:role:add' },
+          { id: 9, title: '编辑角色', authMark: 'system:role:edit' },
+          { id: 10, title: '删除角色', authMark: 'system:role:delete' }
+        ]
       }
     },
     {
@@ -50,9 +61,9 @@ export const systemRoutes: AppRouteRecord = {
         keepAlive: true,
         roles: ['R_SUPER'],
         authList: [
-          { id: 1, title: '新增', authMark: 'add' },
-          { id: 2, title: '编辑', authMark: 'edit' },
-          { id: 3, title: '删除', authMark: 'delete' }
+          { id: 1, title: '新增', authMark: 'system:menu:add' },
+          { id: 2, title: '编辑', authMark: 'system:menu:edit' },
+          { id: 3, title: '删除', authMark: 'system:menu:delete' }
         ]
       }
     },

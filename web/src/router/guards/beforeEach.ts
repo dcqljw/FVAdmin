@@ -165,7 +165,7 @@ async function handleRouteGuard(
       const MAX_WAIT = 5000
 
       while (routeInitInProgress && Date.now() - startTime < MAX_WAIT) {
-        await new Promise(resolve => setTimeout(resolve, 50))
+        await new Promise((resolve) => setTimeout(resolve, 50))
       }
 
       if (routeRegistry?.isRegistered()) {

@@ -8,8 +8,8 @@
  *
  * 1. 权限检查 - 检查用户是否拥有指定的权限标识
  * 2. 双模式支持 - 自动适配前端模式和后端模式的权限验证
- * 3. 前端模式 - 从用户信息中获取按钮权限列表（如 ['add', 'edit', 'delete']）
- * 4. 后端模式 - 从路由 meta 配置中获取权限列表（如 [{ authMark: 'add' }]）
+ * 3. 前端模式 - 从用户信息中获取按钮权限列表（如 ['system:user:add', 'system:user:edit']）
+ * 4. 后端模式 - 从路由 meta 配置中获取权限列表（如 [{ authMark: 'system:user:add' }]）
  *
  * ## 使用示例
  *
@@ -17,13 +17,13 @@
  * const { hasAuth } = useAuth()
  *
  * // 检查是否有新增权限
- * if (hasAuth('add')) {
+ * if (hasAuth('system:user:add')) {
  *   // 显示新增按钮
  * }
  *
  * // 在模板中使用
- * <el-button v-if="hasAuth('edit')">编辑</el-button>
- * <el-button v-if="hasAuth('delete')">删除</el-button>
+ * <el-button v-if="hasAuth('system:user:edit')">编辑</el-button>
+ * <el-button v-if="hasAuth('system:user:delete')">删除</el-button>
  * ```
  *
  * @module useAuth
@@ -45,10 +45,10 @@ export const useAuth = () => {
   const { isFrontendMode } = useAppMode()
   const { info } = storeToRefs(userStore)
 
-  // 前端按钮权限（例如：['add', 'edit']）
+  // 前端按钮权限（例如：['system:user:add', 'system:user:edit']）
   const frontendAuthList = info.value?.buttons ?? []
 
-  // 后端路由 meta 配置的权限列表（例如：[{ authMark: 'add' }]）
+  // 后端路由 meta 配置的权限列表（例如：[{ authMark: 'system:user:add' }]）
   const backendAuthList: AuthItem[] = Array.isArray(route.meta.authList)
     ? (route.meta.authList as AuthItem[])
     : []

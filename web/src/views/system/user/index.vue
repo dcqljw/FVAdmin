@@ -13,7 +13,7 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElSpace wrap>
-            <ElButton v-if="hasAuth('user:add')" @click="showDialog('add')" v-ripple
+            <ElButton v-if="hasAuth('system:user:add')" @click="showDialog('add')" v-ripple
               >新增用户</ElButton
             >
           </ElSpace>
@@ -144,17 +144,17 @@
           fixed: 'right', // 固定列
           formatter: (row) =>
             h('div', [
-              hasAuth('user:edit') &&
+              hasAuth('system:user:edit') &&
                 h(ArtButtonTable, {
                   type: 'edit',
                   onClick: () => showDialog('edit', row)
                 }),
-              hasAuth('user:delete') &&
+              hasAuth('system:user:delete') &&
                 h(ArtButtonTable, {
                   type: 'delete',
                   onClick: () => deleteUser(row)
                 }),
-              hasAuth('user:reset-password') &&
+              hasAuth('system:user:reset-password') &&
                 h(ArtButtonTable, {
                   icon: 'ri:refresh-line',
                   onClick: () => resetPassword(row)

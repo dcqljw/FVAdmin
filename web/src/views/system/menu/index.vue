@@ -19,7 +19,9 @@
         @refresh="handleRefresh"
       >
         <template #left>
-          <ElButton v-if="hasAuth('menu:add')" @click="handleAddMenu" v-ripple> 添加菜单 </ElButton>
+          <ElButton v-if="hasAuth('system:menu:add')" @click="handleAddMenu" v-ripple>
+            添加菜单
+          </ElButton>
           <ElButton @click="toggleExpand" v-ripple>
             {{ isExpanded ? '收起' : '展开' }}
           </ElButton>
@@ -205,12 +207,12 @@
 
         if (row.meta?.isAuthButton) {
           return h('div', buttonStyle, [
-            hasAuth('menu:edit') &&
+            hasAuth('system:menu:edit') &&
               h(ArtButtonTable, {
                 type: 'edit',
                 onClick: () => handleEditAuth(row)
               }),
-            hasAuth('menu:delete') &&
+            hasAuth('system:menu:delete') &&
               h(ArtButtonTable, {
                 type: 'delete',
                 onClick: () => handleDeleteAuth(<number>row.id)
@@ -219,18 +221,18 @@
         }
 
         return h('div', buttonStyle, [
-          hasAuth('menu:add') &&
+          hasAuth('system:menu:add') &&
             h(ArtButtonTable, {
               type: 'add',
               onClick: () => handleAddAuth(row),
               title: '新增权限'
             }),
-          hasAuth('menu:edit') &&
+          hasAuth('system:menu:edit') &&
             h(ArtButtonTable, {
               type: 'edit',
               onClick: () => handleEditMenu(row)
             }),
-          hasAuth('menu:delete') &&
+          hasAuth('system:menu:delete') &&
             h(ArtButtonTable, {
               type: 'delete',
               onClick: () => handleDeleteMenu(<number>row.id)

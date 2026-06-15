@@ -48,8 +48,20 @@
     </template>
 
     <!-- 图标选择对话框 -->
-    <ElDialog v-model="iconDialogVisible" title="选择图标" width="680px" align-center append-to-body>
-      <ElInput v-model="iconSearchText" placeholder="搜索图标..." prefix-icon="Search" clearable class="mb-4" />
+    <ElDialog
+      v-model="iconDialogVisible"
+      title="选择图标"
+      width="680px"
+      align-center
+      append-to-body
+    >
+      <ElInput
+        v-model="iconSearchText"
+        placeholder="搜索图标..."
+        prefix-icon="Search"
+        clearable
+        class="mb-4"
+      />
       <ElScrollbar height="400px">
         <div class="icon-grid">
           <div
@@ -432,27 +444,27 @@
 </script>
 
 <style scoped>
-.icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-}
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
 
-.icon-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
+  .icon-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
 
-.icon-item:hover {
-  border-color: var(--el-color-primary);
-  background-color: var(--el-color-primary-light-9);
-}
+  .icon-item:hover {
+    border-color: var(--el-color-primary);
+    background-color: var(--el-color-primary-light-9);
+  }
 
-.icon-selected {
-  border-color: var(--el-color-primary) !important;
-  background-color: var(--el-color-primary-light-9) !important;
-  box-shadow: 0 0 0 1px var(--el-color-primary);
-}
+  .icon-selected {
+    border-color: var(--el-color-primary) !important;
+    background-color: var(--el-color-primary-light-9) !important;
+    box-shadow: 0 0 0 1px var(--el-color-primary);
+  }
 </style>

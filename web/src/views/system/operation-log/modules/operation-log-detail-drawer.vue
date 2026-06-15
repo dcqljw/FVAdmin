@@ -1,11 +1,6 @@
 <!-- 操作日志详情抽屉 -->
 <template>
-  <ElDrawer
-    v-model="drawerVisible"
-    title="操作日志详情"
-    size="500px"
-    :destroy-on-close="true"
-  >
+  <ElDrawer v-model="drawerVisible" title="操作日志详情" size="500px" :destroy-on-close="true">
     <ElDescriptions :column="2" border>
       <ElDescriptionsItem label="ID">{{ logData.id }}</ElDescriptionsItem>
       <ElDescriptionsItem label="用户名">{{ logData.username }}</ElDescriptionsItem>
@@ -24,7 +19,9 @@
       </ElDescriptionsItem>
       <ElDescriptionsItem label="IP 地址">{{ logData.ip }}</ElDescriptionsItem>
       <ElDescriptionsItem label="耗时(s)">{{ logData.cost_time.toFixed(2) }}</ElDescriptionsItem>
-      <ElDescriptionsItem label="操作时间" :span="2">{{ formatTime(logData.created_at) }}</ElDescriptionsItem>
+      <ElDescriptionsItem label="操作时间" :span="2">{{
+        formatTime(logData.created_at)
+      }}</ElDescriptionsItem>
     </ElDescriptions>
 
     <div v-if="logData.query_params" class="detail-section">

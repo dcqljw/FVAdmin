@@ -1,9 +1,6 @@
 <!-- 头像组件：显示首字母大写 + 随机背景色 -->
 <template>
-  <div
-    class="art-avatar flex-cc rounded-full font-medium shrink-0"
-    :style="avatarStyle"
-  >
+  <div class="art-avatar flex-cc rounded-full font-medium shrink-0" :style="avatarStyle">
     <template v-if="src">
       <img :src="src" alt="avatar" class="w-full h-full rounded-full object-cover" />
     </template>
@@ -50,7 +47,7 @@
       '#FF99C3', // 粉
       '#269AFA', // 天蓝
       '#9270CA', // 紫
-      '#FF9D4D'  // 橙
+      '#FF9D4D' // 橙
     ]
     let hash = 0
     for (let i = 0; i < name.length; i++) {

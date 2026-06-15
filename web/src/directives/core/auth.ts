@@ -13,14 +13,14 @@
  * ## 使用示例
  *
  * ```vue
- * <!-- 只有拥有 'add' 权限的用户才能看到新增按钮 -->
- * <el-button v-auth="'add'">新增</el-button>
+ * <!-- 只有拥有 'system:menu:add' 权限的用户才能看到新增按钮 -->
+ * <el-button v-auth="'system:menu:add'">新增</el-button>
  *
- * <!-- 只有拥有 'edit' 权限的用户才能看到编辑按钮 -->
- * <el-button v-auth="'edit'">编辑</el-button>
+ * <!-- 只有拥有 'system:menu:edit' 权限的用户才能看到编辑按钮 -->
+ * <el-button v-auth="'system:menu:edit'">编辑</el-button>
  *
- * <!-- 只有拥有 'delete' 权限的用户才能看到删除按钮 -->
- * <el-button v-auth="'delete'">删除</el-button>
+ * <!-- 只有拥有 'system:menu:delete' 权限的用户才能看到删除按钮 -->
+ * <el-button v-auth="'system:menu:delete'">删除</el-button>
  * ```
  *
  * ## 注意事项

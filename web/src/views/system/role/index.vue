@@ -20,6 +20,7 @@
               </template>
             </ElInput>
             <ElButton
+              v-if="hasAuth('system:role:add')"
               type="primary"
               :icon="Plus"
               circle
@@ -56,15 +57,23 @@
                   >({{ role.code }})</span
                 >
               </span>
-              <ElDropdown trigger="click" @command="(cmd: string) => handleRoleCommand(cmd, role)">
+              <ElDropdown
+                v-if="hasAuth('system:role:edit') || hasAuth('system:role:delete')"
+                trigger="click"
+                @command="(cmd: string) => handleRoleCommand(cmd, role)"
+              >
                 <ElIcon
                   class="role-more text-[var(--el-text-color-placeholder)] flex-shrink-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
                   ><MoreFilled
                 /></ElIcon>
                 <template #dropdown>
                   <ElDropdownMenu>
-                    <ElDropdownItem command="edit">编辑角色</ElDropdownItem>
-                    <ElDropdownItem command="delete" divided>删除角色</ElDropdownItem>
+                    <ElDropdownItem v-if="hasAuth('system:role:edit')" command="edit"
+                      >编辑角色</ElDropdownItem
+                    >
+                    <ElDropdownItem v-if="hasAuth('system:role:delete')" command="delete" divided
+                      >删除角色</ElDropdownItem
+                    >
                   </ElDropdownMenu>
                 </template>
               </ElDropdown>
@@ -101,10 +110,13 @@
   import RolePermissionPanel from './modules/role-permission-panel.vue'
   import RoleEditDialog from './modules/role-edit-dialog.vue'
   import { ElMessageBox } from 'element-plus'
+  import { useAuth } from '@/hooks'
 
   defineOptions({ name: 'Role' })
 
   type RoleListItem = Api.SystemManage.RoleListItem
+
+  const { hasAuth } = useAuth()
 
   const roleSearchKeyword = ref('')
   const roleList = ref<RoleListItem[]>([])

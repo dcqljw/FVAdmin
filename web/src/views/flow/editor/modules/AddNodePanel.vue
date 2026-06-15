@@ -22,7 +22,13 @@
 </script>
 
 <template>
-  <ElDrawer v-model="visible" direction="btt" size="200px" :with-header="false" class="add-node-panel">
+  <ElDrawer
+    v-model="visible"
+    direction="btt"
+    size="200px"
+    :with-header="false"
+    class="add-node-panel"
+  >
     <div class="panel-title">添加节点</div>
     <div class="node-list">
       <div
