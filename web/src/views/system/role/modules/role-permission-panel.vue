@@ -96,6 +96,7 @@
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import ArtAvatar from '@/components/core/base/art-avatar/index.vue'
   import { formatMenuTitle } from '@/utils/router'
+  import { formatUserStatusTag } from '@/utils/formatters'
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchGetMenuList,
@@ -103,7 +104,6 @@
     fetchSetMenuByRole,
     fetchGetUserListByRole
   } from '@/api/system-manage'
-  import { ElTag } from 'element-plus'
   import type { AppRouteRecord } from '@/types/router'
 
   defineOptions({ name: 'RolePermissionPanel' })
@@ -493,13 +493,7 @@
           prop: 'status',
           label: '状态',
           width: 80,
-          formatter: (row: UserListItem) => {
-            const statusConfig =
-              row.status === '1'
-                ? { type: 'success' as const, text: '启用' }
-                : { type: 'danger' as const, text: '禁用' }
-            return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
-          }
+          formatter: (row: UserListItem) => formatUserStatusTag(row.status)
         },
         { prop: 'created_at', label: '创建日期', minWidth: 160 }
       ]

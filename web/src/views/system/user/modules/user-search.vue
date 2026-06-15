@@ -35,17 +35,15 @@
   }
 
   // 动态 options
-  const statusOptions = ref<{ label: string; value: string; disabled?: boolean }[]>([])
+  const statusOptions = ref<{ label: string; value: number; disabled?: boolean }[]>([])
 
   // 模拟接口返回状态数据
   function fetchStatusOptions(): Promise<typeof statusOptions.value> {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve([
-          { label: '在线', value: '1' },
-          { label: '离线', value: '2' },
-          { label: '异常', value: '3' },
-          { label: '注销', value: '4' }
+          { label: '启用', value: 1 },
+          { label: '禁用', value: 0 }
         ])
       }, 1000)
     })

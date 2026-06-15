@@ -55,9 +55,6 @@ declare namespace Api {
       size: number
       total: number
     }
-
-    /** 启用状态 */
-    type EnableStatus = '1' | '2'
   }
 
   /** 认证类型 */
@@ -94,7 +91,7 @@ declare namespace Api {
     interface UserListItem {
       id: number
       avatar: string
-      status: string
+      status: number
       username: string
       userGender: string
       nickname: string

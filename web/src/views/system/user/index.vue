@@ -48,9 +48,10 @@
   import ArtAvatar from '@/components/core/base/art-avatar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetUserList, fetchDeleteUser, fetchResetPassword } from '@/api/system-manage'
+  import { formatUserStatusTag } from '@/utils/formatters'
   import UserSearch from './modules/user-search.vue'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElTag, ElMessageBox } from 'element-plus'
+  import { ElMessageBox } from 'element-plus'
   import { DialogType } from '@/types'
   import { useAuth } from '@/hooks'
 
@@ -73,7 +74,7 @@
     userGender: undefined,
     phone: undefined,
     userEmail: undefined,
-    status: '1'
+    status: 1
   })
 
   const {
@@ -129,13 +130,7 @@
         {
           prop: 'status',
           label: '状态',
-          formatter: (row) => {
-            const statusConfig =
-              row.status === '1'
-                ? { type: 'success' as const, text: '启用' }
-                : { type: 'danger' as const, text: '禁用' }
-            return h(ElTag, { type: statusConfig.type }, () => statusConfig.text)
-          }
+          formatter: (row) => formatUserStatusTag(row.status)
         },
         {
           prop: 'created_at',
