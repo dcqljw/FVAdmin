@@ -382,9 +382,6 @@
       // 后端把菜单 id 与权限 id 放在同一个 id 空间，合并后一起提交
       const merged = [...Array.from(checkedMenuIds.value), ...Array.from(checkedAuthIds.value)]
       await fetchSetMenuByRole(props.roleData.id, merged)
-      ElMessage.success(
-        `保存成功：菜单 ${checkedMenuIds.value.size} 项，权限 ${checkedAuthIds.value.size} 项`
-      )
     } catch (error) {
       console.error('[role-permission] 保存失败:', error)
       ElMessage.error('保存失败')

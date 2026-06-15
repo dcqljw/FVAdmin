@@ -21,7 +21,7 @@ async def create_superuser():
         user = await User.create(
             username=SUPERADMIN_USERNAME,
             password=new_password,
-            nickname="管理员",
+            nickname="超级管理员",
             phone="12345678901",
             email="admin@admin.com",
             avatar="",
