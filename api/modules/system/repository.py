@@ -13,13 +13,14 @@ class UserRepository(BaseRepository[User]):
         return await User.get_or_none(username=username)
 
     async def list_paginated(
-        self,
-        current: int = 1,
-        size: int = 10,
-        username: Optional[str] = None,
-        phone: Optional[str] = None,
-        email: Optional[str] = None,
-        role_id: Optional[int] = None,
+            self,
+            current: int = 1,
+            size: int = 10,
+            username: Optional[str] = None,
+            phone: Optional[str] = None,
+            email: Optional[str] = None,
+            role_id: Optional[int] = None,
+            status: Optional[int] = None,
     ) -> Tuple[List[User], int]:
         query = User.all()
         if username:
@@ -30,6 +31,8 @@ class UserRepository(BaseRepository[User]):
             query = query.filter(email__contains=email)
         if role_id:
             query = query.filter(roles__id=role_id)
+        if status is not None:
+            query = query.filter(status=status)
 
         total = await query.count()
         users = await query.offset((current - 1) * size).limit(size).prefetch_related("roles").all()
@@ -46,12 +49,12 @@ class RoleRepository(BaseRepository[Role]):
         return await Role.filter(code__in=codes)
 
     async def list_paginated(
-        self,
-        current: int = 1,
-        size: int = 10,
-        name: Optional[str] = None,
-        code: Optional[str] = None,
-        description: Optional[str] = None,
+            self,
+            current: int = 1,
+            size: int = 10,
+            name: Optional[str] = None,
+            code: Optional[str] = None,
+            description: Optional[str] = None,
     ) -> Tuple[List[Role], int]:
         query = Role.all()
         if name:

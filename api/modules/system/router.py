@@ -32,10 +32,12 @@ async def get_user_list(
         username: str = None,
         phone: str = None,
         email: str = None,
+        status: int = None,
 ):
     user_list, total = await user_service.list_users(
         current=current, size=size,
         username=username, phone=phone, email=email,
+        status=status,
     )
     return SuccessResponse(data={"records": user_list, "total": total})
 

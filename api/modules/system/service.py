@@ -45,18 +45,19 @@ class UserService(BaseService):
         return user_data.model_dump(mode="json")
 
     async def list_users(
-        self,
-        current: int = 1,
-        size: int = 10,
-        username: Optional[str] = None,
-        phone: Optional[str] = None,
-        email: Optional[str] = None,
-        role_id: Optional[int] = None,
+            self,
+            current: int = 1,
+            size: int = 10,
+            username: Optional[str] = None,
+            phone: Optional[str] = None,
+            email: Optional[str] = None,
+            role_id: Optional[int] = None,
+            status: Optional[int] = None,
     ) -> Tuple[List[dict], int]:
         users, total = await user_repo.list_paginated(
             current=current, size=size,
             username=username, phone=phone, email=email,
-            role_id=role_id,
+            role_id=role_id, status=status,
         )
 
         records = []
@@ -67,14 +68,14 @@ class UserService(BaseService):
         return records, total
 
     async def create_user(
-        self,
-        username: str,
-        password: str,
-        nickname: str,
-        role_codes: List[str],
-        email: Optional[str] = None,
-        phone: Optional[str] = None,
-        avatar: Optional[str] = None,
+            self,
+            username: str,
+            password: str,
+            nickname: str,
+            role_codes: List[str],
+            email: Optional[str] = None,
+            phone: Optional[str] = None,
+            avatar: Optional[str] = None,
     ) -> User:
         existing = await user_repo.find_by_username(username)
         if existing:
@@ -96,13 +97,13 @@ class UserService(BaseService):
         return user
 
     async def update_user(
-        self,
-        username: str,
-        nickname: str,
-        role_codes: List[str],
-        email: Optional[str] = None,
-        phone: Optional[str] = None,
-        avatar: Optional[str] = None,
+            self,
+            username: str,
+            nickname: str,
+            role_codes: List[str],
+            email: Optional[str] = None,
+            phone: Optional[str] = None,
+            avatar: Optional[str] = None,
     ) -> User:
         user = await user_repo.find_by_username(username)
         if not user:
@@ -122,12 +123,12 @@ class UserService(BaseService):
         return user
 
     async def update_profile(
-        self,
-        user: User,
-        nickname: str,
-        email: Optional[str] = None,
-        phone: Optional[str] = None,
-        avatar: Optional[str] = None,
+            self,
+            user: User,
+            nickname: str,
+            email: Optional[str] = None,
+            phone: Optional[str] = None,
+            avatar: Optional[str] = None,
     ) -> User:
         user.nickname = nickname
         user.phone = phone or ""
@@ -156,7 +157,7 @@ class UserService(BaseService):
         return deleted_username
 
     async def change_password(
-        self, user: User, old_password: str, new_password: str
+            self, user: User, old_password: str, new_password: str
     ) -> User:
         if not verify_password(old_password, user.password):
             raise CustomException(code=400, msg="原密码错误")
@@ -181,8 +182,8 @@ class UserService(BaseService):
         return user.username, new_password
 
     async def upload_avatar(
-        self, user: User, file_content: bytes, filename: str,
-        content_type: str, file_size: int
+            self, user: User, file_content: bytes, filename: str,
+            content_type: str, file_size: int
     ) -> str:
         allowed_types = ["image/jpeg", "image/png"]
         if content_type not in allowed_types:
@@ -214,12 +215,12 @@ class UserService(BaseService):
 class RoleService(BaseService):
 
     async def list_roles(
-        self,
-        current: int = 1,
-        size: int = 10,
-        name: Optional[str] = None,
-        code: Optional[str] = None,
-        description: Optional[str] = None,
+            self,
+            current: int = 1,
+            size: int = 10,
+            name: Optional[str] = None,
+            code: Optional[str] = None,
+            description: Optional[str] = None,
     ) -> Tuple[List[dict], int]:
         roles, total = await role_repo.list_paginated(
             current=current, size=size,
@@ -229,7 +230,7 @@ class RoleService(BaseService):
         return role_list, total
 
     async def create_role(
-        self, name: str, code: str, description: str, enabled: bool
+            self, name: str, code: str, description: str, enabled: bool
     ) -> Role:
         existing = await role_repo.find_by_name_or_code(name, code)
         if existing:
@@ -259,7 +260,7 @@ class RoleService(BaseService):
         return deleted_name
 
     async def update_role(
-        self, code: str, name: str, description: str, enabled: bool
+            self, code: str, name: str, description: str, enabled: bool
     ) -> Role:
         role = await role_repo.find_by_code(code)
         if not role:
@@ -344,16 +345,16 @@ class MenuService(BaseService):
         return [menu.id for menu in selected_menus]
 
     async def create_menu(
-        self,
-        parent_id: int,
-        name: str,
-        path: str,
-        meta: dict,
-        component: str,
-        sort: int,
-        status: bool,
-        auth_mark: str,
-        menu_type: int,
+            self,
+            parent_id: int,
+            name: str,
+            path: str,
+            meta: dict,
+            component: str,
+            sort: int,
+            status: bool,
+            auth_mark: str,
+            menu_type: int,
     ) -> Menu:
         menu = await menu_repo.create(
             parent_id=parent_id,
@@ -370,16 +371,16 @@ class MenuService(BaseService):
         return menu
 
     async def update_menu(
-        self,
-        menu_id: int,
-        name: str,
-        path: str,
-        meta: dict,
-        component: str,
-        sort: int,
-        status: bool,
-        auth_mark: str,
-        menu_type: int,
+            self,
+            menu_id: int,
+            name: str,
+            path: str,
+            meta: dict,
+            component: str,
+            sort: int,
+            status: bool,
+            auth_mark: str,
+            menu_type: int,
     ) -> Menu:
         menu = await menu_repo.get_by_id(menu_id)
         if not menu:
@@ -417,7 +418,7 @@ class MenuService(BaseService):
         return deleted_name
 
     async def assign_menus_to_role(
-        self, role_id: int, menu_ids: List[int]
+            self, role_id: int, menu_ids: List[int]
     ) -> Role:
         role = await Role.get(id=role_id)
         await role.menus.clear()
