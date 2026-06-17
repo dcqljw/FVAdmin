@@ -212,8 +212,8 @@
       userStore.setToken(token, refreshToken)
       userStore.setLoginStatus(true)
 
-      // 预加载动态路由（fire-and-forget，不阻塞用户操作）
-      initDynamicRoutes(router).catch(() => {})
+      // 等待动态路由注册完成，确保跳转时路由已就绪
+      await initDynamicRoutes(router)
 
       // 登录成功处理
       showLoginSuccessNotice()
