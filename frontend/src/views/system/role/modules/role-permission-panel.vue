@@ -94,7 +94,6 @@
 <script setup lang="ts">
   import ArtTable from '@/components/core/tables/art-table/index.vue'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
-  import ArtAvatar from '@/components/core/base/art-avatar/index.vue'
   import { formatMenuTitle } from '@/utils/router'
   import { formatUserStatusTag } from '@/utils/formatters'
   import { useTable } from '@/hooks/core/useTable'
@@ -470,21 +469,8 @@
       // 避免在 props.roleData 还未就绪时拉取
       immediate: false,
       columnsFactory: () => [
-        {
-          prop: 'username',
-          label: '用户',
-          minWidth: 220,
-          formatter: (row: UserListItem) =>
-            h('div', { class: 'user flex-c' }, [
-              h('div', { class: 'size-9.5 shrink-0' }, [
-                h(ArtAvatar, { name: row.nickname || row.username, size: 38 })
-              ]),
-              h('div', { class: 'ml-2' }, [
-                h('p', { class: 'user-name' }, row.nickname ? row.nickname : row.username),
-                h('p', { class: 'email' }, row.email)
-              ])
-            ])
-        },
+        { prop: 'username', label: '用户名' },
+        { prop: 'nickname', label: '昵称' },
         { prop: 'phone', label: '手机号', minWidth: 120 },
         {
           prop: 'status',

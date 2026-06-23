@@ -45,7 +45,6 @@
 
 <script setup lang="ts">
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
-  import ArtAvatar from '@/components/core/base/art-avatar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetUserList, fetchDeleteUser, fetchResetPassword } from '@/api/system-manage'
   import { formatUserStatusTag } from '@/utils/formatters'
@@ -106,26 +105,8 @@
       columnsFactory: () => [
         { type: 'selection', fixed: 'left' }, // 勾选列
         { type: 'index', width: 60, label: '序号' }, // 序号
-        {
-          prop: 'userInfo',
-          label: '用户名',
-          width: 280,
-          // visible: false, // 默认是否显示列
-          formatter: (row) => {
-            return h('div', { class: 'user flex-c' }, [
-              h('div', { class: 'size-9.5 shrink-0' }, [
-                h(ArtAvatar, {
-                  name: row.nickname || row.username,
-                  size: 38
-                })
-              ]),
-              h('div', { class: 'ml-2' }, [
-                h('p', { class: 'user-name' }, row.nickname ? row.nickname : row.username),
-                h('p', { class: 'email' }, row.email)
-              ])
-            ])
-          }
-        },
+        { prop: 'username', label: '用户名' },
+        { prop: 'nickname', label: '昵称' },
         { prop: 'phone', label: '手机号' },
         {
           prop: 'status',
