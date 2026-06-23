@@ -18,7 +18,7 @@ class CustomException(Exception):
 
 
 # 1. 处理自定义业务异常
-async def custom_exception_handler(request: Request, exc: CustomException):
+async def custom_exception_handler(request: Request, exc: CustomException) -> JSONResponse:
     return JSONResponse(
         status_code=200,  # HTTP 状态码固定200（业务码用code字段区分）
         content={

@@ -33,7 +33,7 @@ async def lifespan(_app: FastAPI):
     async with register_mysql(_app):
         await init_data()
         yield
-    await redis_cache.close()    # 关闭 Redis
+    await redis_cache.close()  # 关闭 Redis
 
     app_logger.info("应用关闭")
 
@@ -50,13 +50,16 @@ app.add_middleware(
 
 # 中间件通过依赖注入解耦：在 main.py（组合根）注入 log_handler
 from modules.log.service import operation_log_service
+
 app.add_middleware(LoggingMiddleware, log_handler=operation_log_service.create_log)
 
+# pyrefly: ignore [bad-argument-type]
 app.add_exception_handler(CustomException, custom_exception_handler)
 
 # 注册业务模块路由
 for module_path in ROUTER_MODULES:
-    app.include_router(importlib.import_module(module_path).router)
+    module = importlib.import_module(module_path)
+    app.include_router(getattr(module, "router"))
 
 if __name__ == "__main__":
     uvicorn.run(app)

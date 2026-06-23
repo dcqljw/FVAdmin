@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Security, UploadFile
 
 from core.deps import verify_token_dep, permission_check
+from core.exceptions import CustomException
 from shared.base_schema import SuccessResponse
 from modules.system.models import User
 from modules.system.schemas import (
@@ -28,10 +29,10 @@ async def get_user_info(current_user: User = Security(permission_check)):
 async def get_user_list(
         current: int = 1,
         size: int = 10,
-        username: str = None,
-        phone: str = None,
-        email: str = None,
-        status: int = None,
+        username: str | None = None,
+        phone: str | None = None,
+        email: str | None = None,
+        status: int | None = None,
         current_user: User = Security(permission_check, scopes=['system:user:list'])
 ):
     user_list, total = await user_service.list_users(
@@ -85,6 +86,8 @@ async def upload_avatar(
         file: UploadFile,
         current_user: User = Security(permission_check),
 ):
+    if not file.filename or not file.content_type or file.size is None:
+        raise CustomException(code=400, msg="上传文件信息不完整")
     file_content = await file.read()
     avatar_url = await user_service.upload_avatar(
         user=current_user, file_content=file_content,
@@ -131,9 +134,9 @@ async def reset_password(
 async def get_role_list(
         current: int = 1,
         size: int = 10,
-        name: str = None,
-        code: str = None,
-        description: str = None,
+        name: str | None = None,
+        code: str | None = None,
+        description: str | None = None,
         current_user: User = Security(permission_check, scopes=['system:role:list']),
 ):
     role_list, total = await role_service.list_roles(
@@ -181,9 +184,9 @@ async def role_user(
         current_user: User = Security(permission_check),
         current: int = 1,
         size: int = 10,
-        username: str = None,
-        phone: str = None,
-        email: str = None,
+        username: str | None = None,
+        phone: str | None = None,
+        email: str | None = None,
 ):
     """
     根据角色ID返回该角色下的所有用户

@@ -151,7 +151,7 @@ async def seed_menus() -> dict[str, Menu]:
 async def seed_roles(menu_map: dict[str, Menu]):
     """
     创建角色并分配全部菜单权限。
-    以 code 判断幂等；菜单关联采用 clear + add 保证与种子数据一致。
+    以 code 判断幂等；仅在角色首次创建时关联菜单。
     """
     all_menus = list(menu_map.values())
 
@@ -166,11 +166,10 @@ async def seed_roles(menu_map: dict[str, Menu]):
         )
         if created:
             app_logger.info(f"  创建角色: {item['code']} (id={role.id})")
-
-        # 清空再重建，保证幂等且与种子数据完全一致
-        await role.menus.clear()
-        if all_menus:
-            await role.menus.add(*all_menus)
+            # 仅首次创建时关联菜单，后续手动配置不会被覆盖
+            if all_menus:
+                await role.menus.add(*all_menus)
+                app_logger.info(f"  已为角色 {item['code']} 关联 {len(all_menus)} 个菜单")
 
 
 async def run_seed():
