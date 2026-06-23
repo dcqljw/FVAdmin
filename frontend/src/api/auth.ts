@@ -1,6 +1,17 @@
 import request from '@/utils/http'
 
 /**
+ * 获取验证码
+ * @returns 验证码 key 和 base64 图片
+ */
+export function fetchCaptcha() {
+  return request.get<Api.Auth.CaptchaResponse>({
+    url: '/api/auth/captcha',
+    showErrorMessage: false // 验证码未启用时静默处理，不弹错误提示
+  })
+}
+
+/**
  * 登录
  * @param params 登录参数
  * @returns 登录响应

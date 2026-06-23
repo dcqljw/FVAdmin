@@ -63,12 +63,23 @@ declare namespace Api {
     interface LoginParams {
       username: string
       password: string
+      /** 验证码 key，验证码开启时必填 */
+      captchaKey?: string
+      /** 验证码，验证码开启时必填 */
+      captchaCode?: string
     }
 
     /** 登录响应 */
     interface LoginResponse {
       token: string
       refreshToken: string
+    }
+
+    /** 验证码响应 */
+    interface CaptchaResponse {
+      captchaKey: string
+      /** base64 data URI，可直接作为 <img> src */
+      image: string
     }
 
     /** 用户信息 */

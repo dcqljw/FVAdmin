@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     REDIS_DB: int = 0
     REDIS_ENABLED: bool = True
+    CAPTCHA_ENABLED: bool = True
 
 
 settings = Settings()

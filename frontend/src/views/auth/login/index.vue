@@ -48,30 +48,28 @@
               />
             </ElFormItem>
 
-            <!-- 推拽验证 -->
-            <div class="relative pb-5 mt-6">
-              <div
-                class="relative z-[2] overflow-hidden select-none rounded-lg border border-transparent tad-300"
-                :class="{ '!border-[#FF4E4F]': !isPassing && isClickPass }"
-              >
-                <ArtDragVerify
-                  ref="dragVerify"
-                  v-model:value="isPassing"
-                  :text="$t('login.sliderText')"
-                  textColor="var(--art-gray-700)"
-                  :successText="$t('login.sliderSuccessText')"
-                  progressBarBg="var(--main-color)"
-                  :background="isDark ? '#26272F' : '#F1F1F4'"
-                  handlerBg="var(--default-box-color)"
+            <!-- 验证码 -->
+            <ElFormItem v-if="captchaEnabled" prop="captchaCode">
+              <div class="captcha-row">
+                <ElInput
+                  class="custom-height captcha-input"
+                  :placeholder="$t('login.placeholder.captcha')"
+                  v-model.trim="formData.captchaCode"
+                  autocomplete="off"
+                  maxlength="6"
                 />
+                <div
+                  class="captcha-img-wrap"
+                  :title="$t('login.captchaRefresh')"
+                  @click="loadCaptcha"
+                >
+                  <img v-if="captchaImage" :src="captchaImage" class="captcha-img" alt="captcha" />
+                  <div v-else class="captcha-placeholder">
+                    <span>{{ $t('login.captchaRefresh') }}</span>
+                  </div>
+                </div>
               </div>
-              <p
-                class="absolute top-0 z-[1] px-px mt-2 text-xs text-[#f56c6c] tad-300"
-                :class="{ 'translate-y-10': !isPassing && isClickPass }"
-              >
-                {{ $t('login.placeholder.slider') }}
-              </p>
-            </div>
+            </ElFormItem>
 
             <!--            <div class="flex-cb mt-2 text-sm">-->
             <!--              <ElCheckbox v-model="formData.rememberPassword">{{-->
@@ -112,15 +110,12 @@
   import { useUserStore } from '@/store/modules/user'
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
-  import { fetchLogin } from '@/api/auth'
+  import { fetchLogin, fetchCaptcha } from '@/api/auth'
   import { ElNotification, type FormInstance, type FormRules } from 'element-plus'
-  import { useSettingStore } from '@/store/modules/setting'
   import { initDynamicRoutes } from '@/router/guards/beforeEach'
 
   defineOptions({ name: 'Login' })
 
-  const settingStore = useSettingStore()
-  const { isDark } = storeToRefs(settingStore)
   const { t, locale } = useI18n()
   const formKey = ref(0)
 
@@ -141,13 +136,14 @@
 
   const accounts = computed<Account[]>(() => [])
 
-  const dragVerify = ref()
-
   const userStore = useUserStore()
   const router = useRouter()
   const route = useRoute()
-  const isPassing = ref(false)
-  const isClickPass = ref(false)
+
+  // 验证码相关
+  const captchaEnabled = ref(false)
+  const captchaKey = ref('')
+  const captchaImage = ref('')
 
   const systemName = AppConfig.systemInfo.name
   const formRef = ref<FormInstance>()
@@ -156,19 +152,35 @@
     account: '',
     username: '',
     password: '',
+    captchaCode: '',
     rememberPassword: true
   })
 
   const rules = computed<FormRules>(() => ({
     username: [{ required: true, message: t('login.placeholder.username'), trigger: 'blur' }],
-    password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }]
+    password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }],
+    captchaCode: [{ required: true, message: t('login.placeholder.captcha'), trigger: 'blur' }]
   }))
 
   const loading = ref(false)
 
   onMounted(() => {
     setupAccount('super')
+    loadCaptcha()
   })
+
+  // 加载验证码
+  const loadCaptcha = async () => {
+    try {
+      const res = await fetchCaptcha()
+      captchaEnabled.value = true
+      captchaKey.value = res.captchaKey
+      captchaImage.value = res.image
+    } catch {
+      // 验证码未启用或请求失败，隐藏验证码区域
+      captchaEnabled.value = false
+    }
+  }
 
   // 设置账号
   const setupAccount = (key: AccountKey) => {
@@ -187,21 +199,19 @@
       const valid = await formRef.value.validate()
       if (!valid) return
 
-      // 拖拽验证
-      if (!isPassing.value) {
-        isClickPass.value = true
-        return
-      }
-
       loading.value = true
 
-      // 登录请求
-      const { username, password } = formData
+      // 构造登录参数
+      const { username, password, captchaCode: code } = formData
+      const loginParams: Api.Auth.LoginParams = { username, password }
 
-      const { token, refreshToken } = await fetchLogin({
-        username,
-        password
-      })
+      // 验证码启用时带上验证码参数
+      if (captchaEnabled.value) {
+        loginParams.captchaKey = captchaKey.value
+        loginParams.captchaCode = code
+      }
+
+      const { token, refreshToken } = await fetchLogin(loginParams)
 
       // 验证token
       if (!token) {
@@ -224,7 +234,10 @@
     } catch (error) {
       // 处理 HttpError
       if (error instanceof HttpError) {
-        // console.log(error.code)
+        // 登录失败，刷新验证码
+        if (captchaEnabled.value) {
+          loadCaptcha()
+        }
       } else {
         // 处理非 HttpError
         // ElMessage.error('登录失败，请稍后重试')
@@ -232,13 +245,7 @@
       }
     } finally {
       loading.value = false
-      resetDragVerify()
     }
-  }
-
-  // 重置拖拽验证
-  const resetDragVerify = () => {
-    dragVerify.value.reset()
   }
 
   // 登录成功提示
@@ -262,5 +269,47 @@
 <style lang="scss" scoped>
   :deep(.el-select__wrapper) {
     height: 40px !important;
+  }
+
+  .captcha-row {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .captcha-input {
+    flex: 1;
+  }
+
+  .captcha-img-wrap {
+    flex-shrink: 0;
+    height: 40px;
+    min-width: 120px;
+    border-radius: calc(var(--custom-radius) / 3 + 2px);
+    border: 1px solid var(--default-border);
+    overflow: hidden;
+    cursor: pointer;
+    @apply tad-300;
+
+    &:hover {
+      border-color: var(--el-color-primary);
+    }
+  }
+
+  .captcha-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .captcha-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--art-gray-500);
   }
 </style>

@@ -142,10 +142,12 @@
     "placeholder": {
       "username": "Please enter your account",
       "password": "Please enter your password",
-      "slider": "Please slide to verify"
+      "slider": "Please slide to verify",
+      "captcha": "Please enter captcha code"
     },
     "sliderText": "Please slide to verify",
     "sliderSuccessText": "Verification successful",
+    "captchaRefresh": "Click to refresh captcha",
     "rememberPwd": "Remember password",
     "forgetPwd": "Forgot password",
     "btnText": "Login",
