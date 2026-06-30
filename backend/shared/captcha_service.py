@@ -1,4 +1,3 @@
-import io
 import base64
 import random
 import string
@@ -22,8 +21,7 @@ class CaptchaService:
     def generate(self) -> tuple[str, str]:
         """生成 4 位验证码，返回 (验证码文本, base64 data URI)"""
         text = "".join(random.choices(self.CHARSET, k=4))
-        buf = io.BytesIO()
-        self._image.write(text, buf)
+        buf = self._image.generate(text)
         b64 = base64.b64encode(buf.getvalue()).decode()
         api_logger.debug(f"生成验证码: {text}")
         return text, f"data:image/png;base64,{b64}"
