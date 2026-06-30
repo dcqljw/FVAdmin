@@ -245,6 +245,11 @@
       "userCenter": "个人中心",
       "menu": "菜单管理",
       "operationLog": "操作日志"
+    },
+    "ai": {
+      "title": "AI",
+      "mcpServer": "MCP Server",
+      "aiConfig": "AI 配置"
     }
   },
   "table": {

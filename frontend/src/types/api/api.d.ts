@@ -141,6 +141,38 @@ declare namespace Api {
     >
   }
 
+  /** AI 模块类型 */
+  namespace Ai {
+    /** MCP Server 列表 */
+    type McpServerList = Api.Common.PaginatedResponse<McpServerItem>
+
+    /** MCP Server 列表项 */
+    interface McpServerItem {
+      id: number
+      name: string
+      code: string
+      transport: string
+      url: string
+      auth_token: string
+      description: string
+      status: number
+      created_at: string
+      updated_at: string
+    }
+
+    /** MCP Server 搜索参数 */
+    type McpServerSearchParams = Partial<
+      Pick<McpServerItem, 'name' | 'code' | 'status'> & Api.Common.CommonSearchParams
+    >
+
+    /** MCP Server 工具项 */
+    interface McpServerTool {
+      name: string
+      description: string
+      inputSchema?: Record<string, any>
+    }
+  }
+
   /** 操作日志类型 */
   namespace OperationLog {
     /** 操作日志列表 */

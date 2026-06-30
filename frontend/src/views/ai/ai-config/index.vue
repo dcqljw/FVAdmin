@@ -1,6 +1,8 @@
 <script setup lang="ts">
   import { fetchAiEdit } from '@/api/system-manage'
 
+  defineOptions({ name: 'AiConfig' })
+
   const isEdit = ref(false)
   const model = reactive({
     baseUrl: '',

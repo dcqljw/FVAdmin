@@ -245,6 +245,11 @@
       "userCenter": "User Center",
       "menu": "Menu Manage",
       "operationLog": "Operation Log"
+    },
+    "ai": {
+      "title": "AI",
+      "mcpServer": "MCP Server",
+      "aiConfig": "AI Config"
     }
   },
   "table": {

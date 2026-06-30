@@ -34,6 +34,12 @@ SEED_MENUS: list[dict[str, Any]] = [
         "meta": {"icon": "ri:settings-line", "title": "系统管理"},
         "sort": 2, "component": "/index/index",
     },
+    {
+        "name": "AI", "path": "/ai",
+        "auth_mark": "ai",
+        "meta": {"icon": "ri:robot-line", "title": "AI 能力"},
+        "sort": 3, "component": "/index/index",
+    },
 
     # Dashboard 子菜单
     {
@@ -74,6 +80,15 @@ SEED_MENUS: list[dict[str, Any]] = [
         "meta": {"icon": "ri:menu-line", "title": "菜单管理"},
         "sort": 4, "component": "/system/menu",
     },
+
+    # AI 子菜单
+    {
+        "parent_auth_mark": "ai",
+        "name": "MCP Server", "path": "mcp-server",
+        "auth_mark": "ai:mcp",
+        "meta": {"icon": "ri:server-line", "title": "MCP 服务器"},
+        "sort": 1, "component": "/ai/mcp-server",
+    },
 ]
 
 # 按钮权限：(parent_auth_mark, auth_mark, title, sort)
@@ -94,6 +109,11 @@ _SEED_BUTTONS: list[tuple[str, str, str, int]] = [
     ("system:menu", "system:menu:add", "新增", 2),
     ("system:menu", "system:menu:edit", "修改", 3),
     ("system:menu", "system:menu:delete", "删除", 4),
+    # MCP Server 按钮
+    ("ai:mcp", "ai:mcp:list", "列表", 1),
+    ("ai:mcp", "ai:mcp:add", "新增", 2),
+    ("ai:mcp", "ai:mcp:edit", "修改", 3),
+    ("ai:mcp", "ai:mcp:delete", "删除", 4),
 ]
 
 # 将按钮元组展开为与 SEED_MENUS 相同结构的 dict，合并到列表末尾

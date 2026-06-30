@@ -19,6 +19,7 @@ ROUTER_MODULES = (
     "modules.auth.router",
     "modules.system.router",
     "modules.log.router",
+    "modules.mcp.router",
 )
 
 
