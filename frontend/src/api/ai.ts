@@ -37,3 +37,34 @@ export function fetchTestMcpServer(id: number) {
     url: `/api/ai/mcp/${id}/tools`
   })
 }
+
+/** 获取模型配置列表 */
+export function fetchGetModelConfigList(params: Api.Ai.ModelConfigSearchParams) {
+  return request.get<Api.Ai.ModelConfigList>({
+    url: '/api/model',
+    params
+  })
+}
+
+/** 新增模型配置 */
+export function fetchAddModelConfig(formData: Partial<Api.Ai.ModelConfigItem>) {
+  return request.post<any>({
+    url: '/api/model/add',
+    data: formData
+  })
+}
+
+/** 编辑模型配置 */
+export function fetchUpdateModelConfig(formData: Partial<Api.Ai.ModelConfigItem>) {
+  return request.post<any>({
+    url: '/api/model/edit',
+    data: formData
+  })
+}
+
+/** 删除模型配置 */
+export function fetchDeleteModelConfig(id: number) {
+  return request.post<any>({
+    url: `/api/model/delete?model_id=${id}`
+  })
+}

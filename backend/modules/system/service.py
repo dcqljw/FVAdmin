@@ -432,7 +432,7 @@ class MenuService(BaseService):
         if not role:
             self._not_found("角色", str(role_id))
 
-        self._ensure_not_admin_role(role.code)
+        # self._ensure_not_admin_role(role.code)
 
         await role.menus.clear()
         menus = await menu_repo.get_by_ids(menu_ids)

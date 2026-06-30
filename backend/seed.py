@@ -89,6 +89,20 @@ SEED_MENUS: list[dict[str, Any]] = [
         "meta": {"icon": "ri:server-line", "title": "MCP 服务器"},
         "sort": 1, "component": "/ai/mcp-server",
     },
+    {
+        "parent_auth_mark": "ai",
+        "name": "Chat", "path": "chat",
+        "auth_mark": "chat",
+        "meta": {"icon": "ri:chat-3-line", "title": "AI 对话"},
+        "sort": 2, "component": "/chat/index",
+    },
+    {
+        "parent_auth_mark": "ai",
+        "name": "LLM Model", "path": "llm-model",
+        "auth_mark": "model",
+        "meta": {"icon": "ri:brain-line", "title": "模型管理"},
+        "sort": 3, "component": "/model/index",
+    },
 ]
 
 # 按钮权限：(parent_auth_mark, auth_mark, title, sort)
@@ -114,6 +128,17 @@ _SEED_BUTTONS: list[tuple[str, str, str, int]] = [
     ("ai:mcp", "ai:mcp:add", "新增", 2),
     ("ai:mcp", "ai:mcp:edit", "修改", 3),
     ("ai:mcp", "ai:mcp:delete", "删除", 4),
+    # Chat 按钮
+    ("chat", "chat:session:list", "会话列表", 1),
+    ("chat", "chat:session:create", "创建会话", 2),
+    ("chat", "chat:session:delete", "删除会话", 3),
+    ("chat", "chat:message:list", "消息列表", 4),
+    ("chat", "chat:message:send", "发送消息", 5),
+    # LLM Model 按钮
+    ("model", "model:list", "列表", 1),
+    ("model", "model:add", "新增", 2),
+    ("model", "model:edit", "修改", 3),
+    ("model", "model:delete", "删除", 4),
 ]
 
 # 将按钮元组展开为与 SEED_MENUS 相同结构的 dict，合并到列表末尾

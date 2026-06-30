@@ -171,6 +171,30 @@ declare namespace Api {
       description: string
       inputSchema?: Record<string, any>
     }
+
+    /** 模型配置列表 */
+    type ModelConfigList = Api.Common.PaginatedResponse<ModelConfigItem>
+
+    /** 模型配置列表项 */
+    interface ModelConfigItem {
+      id: number
+      name: string
+      code: string
+      provider: string
+      base_url: string
+      api_key: string
+      model_name: string
+      max_tokens: number
+      is_default: boolean
+      status: number
+      created_at: string
+      updated_at: string
+    }
+
+    /** 模型配置搜索参数 */
+    type ModelConfigSearchParams = Partial<
+      Pick<ModelConfigItem, 'name' | 'status'> & Api.Common.CommonSearchParams
+    >
   }
 
   /** 操作日志类型 */

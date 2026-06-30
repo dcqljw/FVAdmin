@@ -20,6 +20,8 @@ ROUTER_MODULES = (
     "modules.system.router",
     "modules.log.router",
     "modules.mcp.router",
+    "modules.model.router",
+    "modules.chat.router",
 )
 
 

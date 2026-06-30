@@ -249,7 +249,8 @@
     "ai": {
       "title": "AI",
       "mcpServer": "MCP Server",
-      "aiConfig": "AI Config"
+      "aiConfig": "AI Config",
+      "modelConfig": "Model Config"
     }
   },
   "table": {
